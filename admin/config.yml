@@ -33,3 +33,22 @@ collections:
               - { label: "Azul", value: "azul" }
               - { label: "Escuro", value: "escuro" }
           - { label: "Sumir automaticamente em (opcional)", name: "fim", widget: "datetime", required: false, hint: "Deixe vazio para o banner ficar até você desligar." }
+
+  - name: apoiadores
+    label: "Apoiadores"
+    label_singular: "Apoiador"
+    description: "Faixa de apoiadores que passa no site (nome e, opcionalmente, logo e link)."
+    files:
+      - name: lista
+        label: "Lista de apoiadores"
+        file: "content/apoiadores.json"
+        fields:
+          - label: "Apoiadores"
+            name: "itens"
+            widget: "list"
+            label_singular: "Apoiador"
+            summary: "{{fields.nome}}"
+            fields:
+              - { label: "Nome", name: "nome", widget: "string" }
+              - { label: "Logo (opcional)", name: "logo", widget: "image", required: false, hint: "PNG com fundo transparente, altura ~240px" }
+              - { label: "Link (opcional)", name: "link", widget: "string", required: false, hint: "Site ou Instagram do apoiador" }
