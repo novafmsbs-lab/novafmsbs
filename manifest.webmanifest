@@ -1,0 +1,19 @@
+{
+  "name": "Nova FM 87,9 — São Bento do Sul",
+  "short_name": "Nova FM 87,9",
+  "description": "A rádio de São Bento do Sul, Rio Negrinho e Campo Alegre. Você ouve, você gosta!",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "background_color": "#081634",
+  "theme_color": "#081634",
+  "categories": ["music", "entertainment", "news"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

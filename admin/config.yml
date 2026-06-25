@@ -1,0 +1,35 @@
+backend:
+  name: github
+  repo: novafmsbs-lab/novafmsbs   # usuário/repositório — crie o repo com o nome "novafmsbs"
+  branch: main
+  base_url: COLE_AQUI_A_URL_DO_WORKER   # ex: https://sveltia-cms-auth.SEU-SUBDOMINIO.workers.dev (preencheremos juntos)
+
+locale: pt
+
+media_folder: "uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: campanha
+    label: "Campanha / Banner"
+    label_singular: "Banner"
+    description: "Faixa de aviso no topo do site (promoções, sorteios, avisos)."
+    files:
+      - name: banner
+        label: "Banner do topo"
+        file: "content/banner.json"
+        fields:
+          - { label: "Ativar banner no site", name: "ativo", widget: "boolean", default: false }
+          - { label: "Texto", name: "texto", widget: "string", hint: "Ex.: Vai de Bike Nova — participe e concorra a prêmios!" }
+          - { label: "Texto do botão (opcional)", name: "cta_texto", widget: "string", required: false }
+          - { label: "Link do botão (opcional)", name: "cta_link", widget: "string", required: false, hint: "Link do WhatsApp, do regulamento, de uma página, etc." }
+          - label: "Cor do banner"
+            name: "cor"
+            widget: "select"
+            default: "gradiente"
+            options:
+              - { label: "Gradiente Nova", value: "gradiente" }
+              - { label: "Laranja", value: "laranja" }
+              - { label: "Azul", value: "azul" }
+              - { label: "Escuro", value: "escuro" }
+          - { label: "Sumir automaticamente em (opcional)", name: "fim", widget: "datetime", required: false, hint: "Deixe vazio para o banner ficar até você desligar." }
