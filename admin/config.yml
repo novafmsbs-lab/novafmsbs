@@ -2,7 +2,7 @@ backend:
   name: github
   repo: novafmsbs-lab/novafmsbs   # usuário/repositório — crie o repo com o nome "novafmsbs"
   branch: main
-  base_url: COLE_AQUI_A_URL_DO_WORKER   # ex: https://sveltia-cms-auth.SEU-SUBDOMINIO.workers.dev (preencheremos juntos)
+  base_url: base_url: https://sveltia-cms-auth.novafmsbs.workers.dev
 
 locale: pt
 
