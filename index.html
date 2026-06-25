@@ -610,7 +610,7 @@ setInterval(function(){liveNow();var a=document.querySelector('.gtab.active');if
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}</script>
 <script>
-(function(){try{fetch('/content/banner.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(b){
+(function(){try{fetch('/content/banner.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(b){
   if(!b||!b.ativo)return;
   if(b.fim){var end=new Date(b.fim);if(!isNaN(end.getTime())&&Date.now()>end.getTime())return;}
   var el=document.getElementById('promo');if(!el)return;

@@ -1,5 +1,5 @@
 /* Nova FM 87,9 — Service Worker (PWA) — v3 network-first */
-const CACHE = 'novafm-v3';
+const CACHE = 'novafm-v4';
 const ASSETS = ['/', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png'];
 
@@ -16,7 +16,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const u = new URL(req.url);
   if (u.origin !== location.origin) return;                 // nunca o stream/IG/etc de outro domínio
-  if (u.pathname.startsWith('/api/') || u.pathname.includes('/radio')) return; // ao vivo nunca cacheia
+  if (u.pathname.startsWith('/api/') || u.pathname.startsWith('/content/') || u.pathname.includes('/radio')) return; // ao vivo nunca cacheia
 
   // Navegação (abrir a página/app) = network-first: sempre o conteúdo novo, com fallback offline
   if (req.mode === 'navigate') {
