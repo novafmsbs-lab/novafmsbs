@@ -3,7 +3,7 @@
    Roda no servidor (sem CORS), lê o status do Icecast e devolve JSON limpo. */
 
 const ICECAST_STATUS = "https://radio.novafmsbs.com.br/status-json.xsl"; // ajuste se mudar host/porta
-const MOUNT = "/radio"; // o ponto de montagem do BUTT/Icecast
+const MOUNT = "/stream"; // o ponto de montagem do BUTT/Icecast
 
 export async function onRequest() {
   const headers = {
