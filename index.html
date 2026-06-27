@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Nova FM 87,9 — Você ouve, você gosta!</title>
-<meta name="description" content="Nova FM 87,9 — a rádio de São Bento do Sul. Ouça ao vivo: sertanejo, flashback e os hits que você gosta.">
+<meta name="description" content="Nova FM 87,9 — a rádio de São Bento do Sul, Rio Negrinho e Campo Alegre. Ouça ao vivo: sertanejo, flashback e os hits que você gosta.">
 <meta name="theme-color" content="#081634">
 <link rel="canonical" href="https://novafmsbs.com.br/">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -139,8 +139,14 @@
   .np .tag{margin-bottom:13px}
   .np .artist{font-weight:800;font-size:clamp(26px,3.4vw,36px);letter-spacing:-.03em;line-height:1.08}
   .np .song{color:var(--text-2);font-size:18px;font-weight:500;margin-top:4px}
-  .eq{display:flex;align-items:flex-end;gap:4px;height:30px;margin:22px 0}
-  .eq i{width:4px;border-radius:4px;background:linear-gradient(180deg,var(--orange),rgba(255,138,29,.28));height:18%}
+  .eq{display:flex;align-items:flex-end;gap:3px;height:32px;margin:22px 0}
+  .eq i{width:3px;border-radius:3px;background:linear-gradient(180deg,#FFC074,var(--orange) 50%,rgba(255,138,29,.22));height:14%;transition:height .05s linear;box-shadow:0 0 5px rgba(255,138,29,.30)}
+  .vu{display:flex;flex-direction:column;gap:7px;margin:2px 0 18px}
+  .vu-row{display:flex;align-items:center;gap:9px}
+  .vu-l{font-size:10px;font-weight:800;color:#A9B6CF;width:9px;letter-spacing:.5px}
+  .vu-track{position:relative;flex:1;height:7px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;display:block}
+  .vu-fill{position:absolute;left:0;top:0;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#22DD6E,#22DD6E 52%,#FFD23F 76%,#FF4D4D);transition:width .05s linear;display:block}
+  .vu-peak{position:absolute;top:0;height:100%;width:2px;background:#fff;opacity:.8;left:0;transition:left .09s linear;display:block}
   .bar{height:5px;border-radius:100px;background:rgba(128,128,128,.22);overflow:hidden;max-width:440px}
   .bar>span{display:block;height:100%;width:38%;background:var(--orange);border-radius:100px}
   .times{display:flex;justify-content:space-between;max-width:440px;font-size:12.5px;color:var(--text-3);margin-top:9px;font-weight:500}
@@ -389,6 +395,10 @@
         <div class="artist" data-artist>Dupla Horizonte</div>
         <div class="song" data-title>Estrada de Chão</div>
         <div class="eq" id="eqBars" aria-hidden="true"></div>
+        <div class="vu" id="vu" aria-hidden="true">
+          <div class="vu-row"><span class="vu-l">L</span><span class="vu-track"><span class="vu-fill" id="vuL"></span><span class="vu-peak" id="vuLp"></span></span></div>
+          <div class="vu-row"><span class="vu-l">R</span><span class="vu-track"><span class="vu-fill" id="vuR"></span><span class="vu-peak" id="vuRp"></span></span></div>
+        </div>
         <div class="bar"><span data-progfill></span></div>
         <div class="times"><span class="num" data-cur>01:24</span><span class="num" data-dur>03:41</span></div>
         <div class="np-actions">
@@ -501,7 +511,7 @@
 (function(){
   "use strict";
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var STREAM_URL="https://radio.novafmsbs.com.br/stream"; /* stream ao vivo da Nova FM */
+  var STREAM_URL="https://radio.novafmsbs.com.br/radio"; /* stream ao vivo da Nova FM */
   /* === ESPELHO AO VIVO: coloque aqui o endpoint de "tocando agora" do servidor ===
      AzuraCast:  https://radio.novafmsbs.com.br/api/nowplaying/<estacao>
      Icecast:    https://radio.novafmsbs.com.br/status-json.xsl
@@ -520,13 +530,78 @@
   function $all(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
   function setText(sel,val){$all(sel).forEach(function(e){e.textContent=val;});}
   function setCover(c){$all('[data-cover]').forEach(function(e){e.style.background='radial-gradient(130% 130% at 30% 24%,'+c+'33,transparent 60%),linear-gradient(145deg,#15233f,#0a1326)';});}
-  function render(){var s=PLAYLIST[idx];setText('[data-title]',s.t);setText('[data-artist]',s.a);setCover(s.c);}
+  function render(){var s=PLAYLIST[idx];setText('[data-title]',s.t);setText('[data-artist]',s.a);setCover(s.c);mediaMeta(s.t,s.a);}
 
   function bars(el,n){var f=document.createDocumentFragment();for(var i=0;i<n;i++){f.appendChild(document.createElement('i'));}el.appendChild(f);}
-  bars(document.getElementById('eqBars'),36);bars(document.getElementById('miniWave'),5);
+  bars(document.getElementById('eqBars'),44);bars(document.getElementById('miniWave'),5);
+  var EQ=$all('#eqBars i'), MINI=$all('#miniWave i');
+
+  /* ===== Equalizador reagindo ao áudio real (Web Audio API) ===== */
+  var AC=window.AudioContext||window.webkitAudioContext;
+  var actx=null,analyser=null,freq=null,srcNode=null,realMode=false,realData=false,zeroFrames=0,sm=[],anL=null,anR=null,tdL=null,tdR=null,peakL=0,peakR=0,rcTimer=0;
+  audio.crossOrigin='anonymous';  /* exige CORS no stream; se faltar, cai no fallback abaixo */
+  function buildGraph(){
+    if(actx||!AC)return;
+    try{actx=new AC();srcNode=actx.createMediaElementSource(audio);analyser=actx.createAnalyser();
+      analyser.fftSize=256;analyser.smoothingTimeConstant=0.82;freq=new Uint8Array(analyser.frequencyBinCount);
+      srcNode.connect(analyser);analyser.connect(actx.destination);
+      try{var sp=actx.createChannelSplitter(2);anL=actx.createAnalyser();anR=actx.createAnalyser();
+        anL.fftSize=512;anR.fftSize=512;tdL=new Uint8Array(anL.fftSize);tdR=new Uint8Array(anR.fftSize);
+        srcNode.connect(sp);sp.connect(anL,0);sp.connect(anR,1);}catch(e2){anL=anR=null;}
+      realMode=true;}catch(e){realMode=false;}
+  }
+  audio.addEventListener('error',function(){
+    if(audio.crossOrigin){audio.crossOrigin=null;realMode=false;realData=false;
+      if(playing){try{audio.src=STREAM_URL;audio.play().catch(function(){});}catch(e){}}}
+  });
+
+  /* ===== VUs estéreo (L/R) em tempo real ===== */
+  function rms(buf){var s=0,n=buf.length,i,v;for(i=0;i<n;i++){v=(buf[i]-128)/128;s+=v*v;}return Math.sqrt(s/n);}
+  function setVU(lv,rv){lv=Math.max(0,Math.min(1,lv));rv=Math.max(0,Math.min(1,rv));
+    var fL=document.getElementById('vuL'),fR=document.getElementById('vuR'),pL=document.getElementById('vuLp'),pR=document.getElementById('vuRp');
+    if(fL)fL.style.width=(lv*100).toFixed(1)+'%';if(fR)fR.style.width=(rv*100).toFixed(1)+'%';
+    peakL=Math.max(lv,peakL-0.012);peakR=Math.max(rv,peakR-0.012);
+    if(pL)pL.style.left=(peakL*100).toFixed(1)+'%';if(pR)pR.style.left=(peakR*100).toFixed(1)+'%';}
+  function vuReal(){if(anL&&anR){anL.getByteTimeDomainData(tdL);anR.getByteTimeDomainData(tdR);setVU(rms(tdL)*1.9,rms(tdR)*1.9);}
+    else if(freq){var s=0,k;for(k=0;k<freq.length;k++)s+=freq[k];var lvl=Math.min(1,(s/freq.length)/110);setVU(lvl,lvl);}}
+
+  /* ===== Media Session (capa + controles na tela de bloqueio) ===== */
+  function mediaMeta(title,artist){if(!('mediaSession' in navigator))return;
+    try{navigator.mediaSession.metadata=new MediaMetadata({title:title||'Nova FM 87,9',artist:artist||'Você ouve, você gosta!',album:'Nova FM 87,9',
+      artwork:[{src:'/icons/icon-192.png',sizes:'192x192',type:'image/png'},{src:'/icons/icon-512.png',sizes:'512x512',type:'image/png'}]});}catch(e){}}
+  if('mediaSession' in navigator){try{navigator.mediaSession.setActionHandler('play',function(){setPlaying(true);});
+    navigator.mediaSession.setActionHandler('pause',function(){setPlaying(false);});
+    navigator.mediaSession.setActionHandler('stop',function(){setPlaying(false);});}catch(e){}}
+
+  /* ===== Reconexão automática se o stream cair ===== */
+  function reconnect(){if(!playing)return;clearTimeout(rcTimer);rcTimer=setTimeout(function(){if(!playing)return;
+    try{audio.src=STREAM_URL+(STREAM_URL.indexOf('?')<0?'?':'&')+'_='+Date.now();audio.load();audio.play().catch(function(){});}catch(e){}},2000);}
+  ['stalled','ended'].forEach(function(ev){audio.addEventListener(ev,function(){if(playing)reconnect();});});
+
   var raf,tick=0;
-  function animate(){tick++;if(tick%2===0){$all('#eqBars i, #miniWave i').forEach(function(b,i){var base=playing?(Math.sin((tick+i*7)/6)*0.5+0.5):0.08;var h=playing?(8+base*70+Math.random()*14):(6+Math.random()*5);b.style.height=Math.min(100,h)+'%';});}raf=requestAnimationFrame(animate);}
-  if(!reduce) animate(); else $all('#eqBars i').forEach(function(b){b.style.height='38%';});
+  function synthFrame(){
+    EQ.forEach(function(b,i){var base=playing?(Math.sin((tick+i*7)/7)*0.5+0.5):0;var h=playing?(8+base*60+Math.random()*16):(5+Math.random()*4);b.style.height=Math.min(100,h)+'%';});
+    var ml=playing?(18+Math.random()*72):8;MINI.forEach(function(x){x.style.height=ml+'%';});
+    setVU(playing?(0.18+Math.random()*0.62):0, playing?(0.18+Math.random()*0.62):0);
+  }
+  function realFrame(){
+    analyser.getByteFrequencyData(freq);
+    var sum=0,bins=freq.length,n=EQ.length,k,i;
+    for(k=0;k<bins;k++)sum+=freq[k];
+    if(sum>0){realData=true;zeroFrames=0;}else{if(++zeroFrames>150)realData=false;}
+    if(!realData){synthFrame();return;}
+    for(i=0;i<n;i++){var idx=Math.floor(Math.pow(i/n,1.45)*(bins*0.62))+1;var v=(freq[idx]||0)/255;
+      sm[i]=(sm[i]||0)*0.55+v*0.45;EQ[i].style.height=(6+sm[i]*94).toFixed(1)+'%';}
+    var lvl=Math.min(1,(sum/bins)/120);
+    MINI.forEach(function(x,j){x.style.height=(10+lvl*90*(0.6+0.4*Math.sin(tick/6+j))).toFixed(1)+'%';});
+    vuReal();
+  }
+  function animate(){
+    raf=requestAnimationFrame(animate);tick++;
+    if(playing&&realMode&&analyser){realFrame();return;}
+    if((tick&1)===0)synthFrame();
+  }
+  if(!reduce) animate(); else EQ.forEach(function(b){b.style.height='38%';});
 
   var prog=0;
   setInterval(function(){if((LIVE&&gotLive)||!playing)return;prog+=0.6;if(prog>=100){prog=0;next();}var fill=document.querySelector('[data-progfill]');if(fill)fill.style.width=prog+'%';var cur=Math.floor(prog/100*221),m=String(Math.floor(cur/60)).padStart(2,'0'),s=String(cur%60).padStart(2,'0');var ce=document.querySelector('[data-cur]');if(ce)ce.textContent=m+':'+s;},600);
@@ -536,7 +611,7 @@
   [3,2,1].forEach(function(o){pushHistory(PLAYLIST[o%PLAYLIST.length]);});
   function next(){pushHistory(PLAYLIST[idx]);idx=(idx+1)%PLAYLIST.length;render();}
 
-  function setPlaying(v){playing=v;circle.classList.toggle('playing',v);mini.classList.toggle('playing',v);$all('.nav-cta .lab').forEach(function(e){e.textContent=v?'Pausar':'Ouvir agora';});if(STREAM_URL){if(v){if(audio.src!==STREAM_URL)audio.src=STREAM_URL;audio.play().catch(function(){});}else audio.pause();}}
+  function setPlaying(v){playing=v;if('mediaSession' in navigator){navigator.mediaSession.playbackState=v?'playing':'paused';}circle.classList.toggle('playing',v);mini.classList.toggle('playing',v);$all('.nav-cta .lab').forEach(function(e){e.textContent=v?'Pausar':'Ouvir agora';});if(STREAM_URL){if(v){buildGraph();if(actx&&actx.state==='suspended'){actx.resume();}if(audio.src!==STREAM_URL)audio.src=STREAM_URL;audio.play().catch(function(){});}else audio.pause();}}
   $all('[data-play]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();setPlaying(!playing);});});
 
   var vol=document.querySelector('.mini .vol input');
@@ -622,6 +697,7 @@ setInterval(function(){liveNow();var a=document.querySelector('.gtab.active');if
       lastKey=key;
       setText('[data-title]',o.title);
       setText('[data-artist]',o.artist||'Nova FM 87,9');
+      mediaMeta(o.title,o.artist||'Nova FM 87,9');
       $all('[data-cover]').forEach(function(e){e.style.background=o.art?('center/cover no-repeat url("'+o.art+'")'):'radial-gradient(130% 130% at 30% 24%,#FF8A1D33,transparent 60%),linear-gradient(145deg,#15233f,#0a1326)';});
     }
     if(o.duration){npDur=o.duration;npEl=o.elapsed||0;}
