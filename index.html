@@ -240,6 +240,19 @@
   .ig-av svg{width:24px;height:24px;fill:#fff}
   .ig-head b{font-weight:800;font-size:17px}
   .ig-head span{display:block;color:var(--text-2);font-size:13.5px}
+  .ig-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .ig-rail::-webkit-scrollbar{display:none}
+  .ig-rail.is-widget{display:block;overflow:visible;padding:0}
+  .ig-rail.is-widget iframe{width:100%;border:0;border-radius:16px;overflow:hidden;display:block;min-height:300px}
+  .ig-rail.is-widget behold-widget{display:block;width:100%}
+  .ig-card{flex:0 0 320px;max-width:320px;scroll-snap-align:start;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+  .ig-card .instagram-media{margin:0!important;min-width:0!important;border:0!important;box-shadow:none!important;border-radius:16px!important}
+  .ig-fallback{flex:0 0 168px;height:168px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;padding:16px;border-radius:18px;text-decoration:none;color:#fff;background:linear-gradient(150deg,var(--c) -10%,#0a1326 95%);border:1px solid rgba(255,255,255,.1);transition:transform .2s var(--ease)}
+  .ig-fallback:hover{transform:translateY(-3px)}
+  .ig-fallback .igf-ic svg{width:30px;height:30px;fill:#fff;opacity:.95}
+  .ig-fallback .igf-tx b{display:block;font-size:15px;font-weight:800}
+  .ig-fallback .igf-tx small{font-size:12.5px;opacity:.85}
+  @media(max-width:520px){.ig-card{flex-basis:300px}.ig-fallback{flex-basis:150px;height:150px}}
 
   footer{padding:60px 0 40px;border-top:1px solid var(--border);position:relative;z-index:2}
   .foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:32px}
@@ -283,8 +296,11 @@
   .mini .mbtn .ic-pause{display:none}
   .mini.playing .mbtn .ic-play{display:none}
   .mini.playing .mbtn .ic-pause{display:block}
-  .mini .vol{display:flex;align-items:center;gap:8px}
-  .mini .vol input{accent-color:var(--orange);width:88px}
+  .mini .vol{display:flex;align-items:center;gap:6px}
+  .mini .vol .vmute{display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:3px;margin:0;cursor:pointer;color:var(--text-2);border-radius:8px}
+  .vol .vmute:hover{color:#F4F7FD;background:rgba(255,255,255,.06)}
+  .vol .vmute .vsvg{width:18px;height:18px;fill:currentColor}
+  .vol input{accent-color:var(--orange);width:88px}
 
   .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
   .reveal.in{opacity:1;transform:none}
@@ -306,8 +322,8 @@
   }
   @media(max-width:520px){
     .loc-grid,.news-grid{grid-template-columns:1fr}.ig-grid{grid-template-columns:repeat(3,1fr)}
-    .nav-cta span.lab{display:none}.nav-cta .cta-ico{display:block}.nav-cta{padding:11px 14px}.mini .vol{display:none}
-    .player-circle{width:224px;height:224px}
+    .nav-cta span.lab{display:none}.nav-cta .cta-ico{display:block}.nav-cta{padding:11px 14px}.mini .mwave{display:none}
+    .player-circle{width:224px;height:224px}.mini .vol input{width:66px}
   }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   :focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
@@ -454,14 +470,7 @@
       <div><b>@novafmsbs</b><span>Siga a Nova FM no Instagram</span></div>
       <a class="chip" href="https://instagram.com/novafmsbs" target="_blank" rel="noopener" style="margin-left:auto;color:var(--blue);border-color:rgba(46,166,255,.3)">Seguir</a>
     </div>
-    <div class="ig-grid">
-      <a class="ig o reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
-      <a class="ig b reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
-      <a class="ig p reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
-      <a class="ig o reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
-      <a class="ig b reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
-      <a class="ig o reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
-    </div>
+    <div class="ig-rail" id="igRail"></div>
   </div>
 </section>
 
@@ -501,7 +510,7 @@
       <svg class="ic-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       <svg class="ic-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
     </button>
-    <div class="vol"><svg viewBox="0 0 24 24" width="17" height="17" style="fill:var(--text-2)"><path d="M3 9v6h4l5 5V4L7 9H3zm13 3a4 4 0 00-2-3.5v7A4 4 0 0016 12z"/></svg><input type="range" min="0" max="100" value="80" aria-label="Volume"></div>
+    <div class="vol"><button class="vmute" id="muteBtn" type="button" aria-label="Mudo"><svg class="vsvg ic-spk" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13 3a4 4 0 00-2-3.5v7A4 4 0 0016 12z"/></svg><svg class="vsvg ic-mut" viewBox="0 0 24 24" hidden><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button><input type="range" min="0" max="100" value="80" aria-label="Volume"></div>
   </div>
 </div>
 
@@ -511,7 +520,7 @@
 (function(){
   "use strict";
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var STREAM_URL="https://radio.novafmsbs.com.br/stream"; /* stream ao vivo da Nova FM */
+  var STREAM_URL="https://radio.novafmsbs.com.br/radio"; /* stream ao vivo da Nova FM */
   /* === ESPELHO AO VIVO: coloque aqui o endpoint de "tocando agora" do servidor ===
      AzuraCast:  https://radio.novafmsbs.com.br/api/nowplaying/<estacao>
      Icecast:    https://radio.novafmsbs.com.br/status-json.xsl
@@ -614,8 +623,19 @@
   function setPlaying(v){playing=v;if('mediaSession' in navigator){navigator.mediaSession.playbackState=v?'playing':'paused';}circle.classList.toggle('playing',v);mini.classList.toggle('playing',v);$all('.nav-cta .lab').forEach(function(e){e.textContent=v?'Pausar':'Ouvir agora';});if(STREAM_URL){if(v){buildGraph();if(actx&&actx.state==='suspended'){actx.resume();}if(audio.src!==STREAM_URL)audio.src=STREAM_URL;audio.play().catch(function(){});}else audio.pause();}}
   $all('[data-play]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();setPlaying(!playing);});});
 
-  var vol=document.querySelector('.mini .vol input');
-  if(vol)vol.addEventListener('input',function(){audio.volume=this.value/100;});
+  /* ===== Volume + Mudo no player (mudo funciona em todos; slider Android/desktop — iOS ignora volume) ===== */
+  (function(){
+    var vol=document.querySelector('.mini .vol input');
+    var mbtn=document.getElementById('muteBtn');
+    var iOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    var lastVol=0.8;
+    function paint(){var m=audio.muted||audio.volume===0;var sp=document.querySelector('#muteBtn .ic-spk'),mu=document.querySelector('#muteBtn .ic-mut');if(sp)sp.hidden=m;if(mu)mu.hidden=!m;}
+    if(iOS&&vol)vol.style.display='none';
+    if(vol){audio.volume=vol.value/100;lastVol=audio.volume;
+      vol.addEventListener('input',function(){var v=this.value/100;audio.volume=v;if(v>0){audio.muted=false;lastVol=v;}paint();});}
+    if(mbtn)mbtn.addEventListener('click',function(){audio.muted=!audio.muted;if(!audio.muted&&audio.volume===0){audio.volume=lastVol||0.8;if(vol)vol.value=Math.round(audio.volume*100);}paint();});
+    paint();
+  })();
 
   if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});$all('.reveal').forEach(function(e){io.observe(e);});}else $all('.reveal').forEach(function(e){e.classList.add('in');});
 
@@ -717,6 +737,39 @@ setInterval(function(){liveNow();var a=document.querySelector('.gtab.active');if
   render();
   function autostart(){if(!STREAM_URL)return;audio.src=STREAM_URL;var pr=audio.play();if(pr&&pr.then){pr.then(function(){setPlaying(true);}).catch(function(){var go=function(e){var b=e&&e.target&&e.target.closest&&e.target.closest("[data-play]");clean();if(!b)setPlaying(true);};function clean(){["pointerdown","touchstart","keydown"].forEach(function(ev){document.removeEventListener(ev,go);});}["pointerdown","touchstart","keydown"].forEach(function(ev){document.addEventListener(ev,go);});});}}
   autostart();
+
+  /* ===== Instagram: carrossel com embeds oficiais (clicáveis) ===== */
+  var INSTA_POSTS = [
+    /* Cole aqui os links dos posts (um por linha), ex.:
+    'https://www.instagram.com/p/ABC123/',
+    'https://www.instagram.com/reel/XYZ789/', */
+  ];
+  /* Feed automático (SnapWidget): cole aqui o <iframe ...> gerado pelo SnapWidget.
+     Se preenchido, ele tem prioridade e mostra os posts mais recentes sozinho. */
+  var IG_WIDGET = '';
+  /* Feed automático (Behold): cole aqui SÓ o ID do feed (a parte feed-id="AQUI"). */
+  var IG_BEHOLD_FEED = 'xEUxci7vvKnwEGQPAPpO';
+  (function(){
+    var rail=document.getElementById('igRail'); if(!rail)return;
+    if(IG_BEHOLD_FEED){rail.classList.add('is-widget');rail.innerHTML='<behold-widget feed-id="'+IG_BEHOLD_FEED+'"></behold-widget>';
+      if(!document.getElementById('behold-js')){var bs=document.createElement('script');bs.id='behold-js';bs.type='module';bs.src='https://w.behold.so/widget.js';document.body.appendChild(bs);}
+      return;}
+    if(IG_WIDGET&&IG_WIDGET.indexOf('<iframe')>-1){rail.classList.add('is-widget');rail.innerHTML=IG_WIDGET;return;}
+    var posts=INSTA_POSTS.filter(function(u){return u&&(u.indexOf('/p/')>-1||u.indexOf('/reel/')>-1||u.indexOf('/tv/')>-1);});
+    if(posts.length){
+      rail.innerHTML=posts.map(function(u){u=u.split('?')[0];if(u.slice(-1)!=='/')u+='/';
+        return '<div class="ig-card"><blockquote class="instagram-media" data-instgrm-permalink="'+u+'" data-instgrm-version="14" style="margin:0;min-width:0;width:100%"></blockquote></div>';}).join('');
+      var sc=document.createElement('script');sc.async=true;sc.src='https://www.instagram.com/embed.js';
+      sc.onload=function(){if(window.instgrm&&window.instgrm.Embeds)window.instgrm.Embeds.process();};
+      document.body.appendChild(sc);
+    } else {
+      var cores=['#FF8A1D','#2EA6FF','#7A5FFF','#FF4D9D','#22DD6E'];
+      rail.innerHTML=cores.map(function(c){
+        return '<a class="ig-fallback" href="https://instagram.com/novafmsbs" target="_blank" rel="noopener" style="--c:'+c+'">'
+          +'<span class="igf-ic"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.4-3.1a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z"/></svg></span>'
+          +'<span class="igf-tx"><b>@novafmsbs</b><small>Ver no Instagram &rarr;</small></span></a>';}).join('');
+    }
+  })();
 })();
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}</script>
