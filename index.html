@@ -139,14 +139,8 @@
   .np .tag{margin-bottom:13px}
   .np .artist{font-weight:800;font-size:clamp(26px,3.4vw,36px);letter-spacing:-.03em;line-height:1.08}
   .np .song{color:var(--text-2);font-size:18px;font-weight:500;margin-top:4px}
-  .eq{display:flex;align-items:flex-end;gap:3px;height:32px;margin:22px 0}
-  .eq i{width:3px;border-radius:3px;background:linear-gradient(180deg,#FFC074,var(--orange) 50%,rgba(255,138,29,.22));height:14%;transition:height .05s linear;box-shadow:0 0 5px rgba(255,138,29,.30)}
-  .vu{display:flex;flex-direction:column;gap:7px;margin:2px 0 18px}
-  .vu-row{display:flex;align-items:center;gap:9px}
-  .vu-l{font-size:10px;font-weight:800;color:#A9B6CF;width:9px;letter-spacing:.5px}
-  .vu-track{position:relative;flex:1;height:7px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;display:block}
-  .vu-fill{position:absolute;left:0;top:0;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#22DD6E,#22DD6E 52%,#FFD23F 76%,#FF4D4D);transition:width .05s linear;display:block}
-  .vu-peak{position:absolute;top:0;height:100%;width:2px;background:#fff;opacity:.8;left:0;transition:left .09s linear;display:block}
+  .eq{display:flex;align-items:flex-end;gap:4px;height:30px;margin:22px 0}
+  .eq i{width:4px;border-radius:4px;background:linear-gradient(180deg,var(--orange),rgba(255,138,29,.28));height:18%}
   .bar{height:5px;border-radius:100px;background:rgba(128,128,128,.22);overflow:hidden;max-width:440px}
   .bar>span{display:block;height:100%;width:38%;background:var(--orange);border-radius:100px}
   .times{display:flex;justify-content:space-between;max-width:440px;font-size:12.5px;color:var(--text-3);margin-top:9px;font-weight:500}
@@ -240,19 +234,6 @@
   .ig-av svg{width:24px;height:24px;fill:#fff}
   .ig-head b{font-weight:800;font-size:17px}
   .ig-head span{display:block;color:var(--text-2);font-size:13.5px}
-  .ig-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .ig-rail::-webkit-scrollbar{display:none}
-  .ig-rail.is-widget{display:block;overflow:visible;padding:0}
-  .ig-rail.is-widget iframe{width:100%;border:0;border-radius:16px;overflow:hidden;display:block;min-height:300px}
-  .ig-rail.is-widget behold-widget{display:block;width:100%}
-  .ig-card{flex:0 0 320px;max-width:320px;scroll-snap-align:start;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
-  .ig-card .instagram-media{margin:0!important;min-width:0!important;border:0!important;box-shadow:none!important;border-radius:16px!important}
-  .ig-fallback{flex:0 0 168px;height:168px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;padding:16px;border-radius:18px;text-decoration:none;color:#fff;background:linear-gradient(150deg,var(--c) -10%,#0a1326 95%);border:1px solid rgba(255,255,255,.1);transition:transform .2s var(--ease)}
-  .ig-fallback:hover{transform:translateY(-3px)}
-  .ig-fallback .igf-ic svg{width:30px;height:30px;fill:#fff;opacity:.95}
-  .ig-fallback .igf-tx b{display:block;font-size:15px;font-weight:800}
-  .ig-fallback .igf-tx small{font-size:12.5px;opacity:.85}
-  @media(max-width:520px){.ig-card{flex-basis:300px}.ig-fallback{flex-basis:150px;height:150px}}
 
   footer{padding:60px 0 40px;border-top:1px solid var(--border);position:relative;z-index:2}
   .foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:32px}
@@ -296,11 +277,8 @@
   .mini .mbtn .ic-pause{display:none}
   .mini.playing .mbtn .ic-play{display:none}
   .mini.playing .mbtn .ic-pause{display:block}
-  .mini .vol{display:flex;align-items:center;gap:6px}
-  .mini .vol .vmute{display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:3px;margin:0;cursor:pointer;color:var(--text-2);border-radius:8px}
-  .vol .vmute:hover{color:#F4F7FD;background:rgba(255,255,255,.06)}
-  .vol .vmute .vsvg{width:18px;height:18px;fill:currentColor}
-  .vol input{accent-color:var(--orange);width:88px}
+  .mini .vol{display:flex;align-items:center;gap:8px}
+  .mini .vol input{accent-color:var(--orange);width:88px}
 
   .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
   .reveal.in{opacity:1;transform:none}
@@ -322,8 +300,8 @@
   }
   @media(max-width:520px){
     .loc-grid,.news-grid{grid-template-columns:1fr}.ig-grid{grid-template-columns:repeat(3,1fr)}
-    .nav-cta span.lab{display:none}.nav-cta .cta-ico{display:block}.nav-cta{padding:11px 14px}.mini .mwave{display:none}
-    .player-circle{width:224px;height:224px}.mini .vol input{width:66px}
+    .nav-cta span.lab{display:none}.nav-cta .cta-ico{display:block}.nav-cta{padding:11px 14px}.mini .vol{display:none}
+    .player-circle{width:224px;height:224px}
   }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   :focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
@@ -411,10 +389,6 @@
         <div class="artist" data-artist>Dupla Horizonte</div>
         <div class="song" data-title>Estrada de Chão</div>
         <div class="eq" id="eqBars" aria-hidden="true"></div>
-        <div class="vu" id="vu" aria-hidden="true">
-          <div class="vu-row"><span class="vu-l">L</span><span class="vu-track"><span class="vu-fill" id="vuL"></span><span class="vu-peak" id="vuLp"></span></span></div>
-          <div class="vu-row"><span class="vu-l">R</span><span class="vu-track"><span class="vu-fill" id="vuR"></span><span class="vu-peak" id="vuRp"></span></span></div>
-        </div>
         <div class="bar"><span data-progfill></span></div>
         <div class="times"><span class="num" data-cur>01:24</span><span class="num" data-dur>03:41</span></div>
         <div class="np-actions">
@@ -470,7 +444,14 @@
       <div><b>@novafmsbs</b><span>Siga a Nova FM no Instagram</span></div>
       <a class="chip" href="https://instagram.com/novafmsbs" target="_blank" rel="noopener" style="margin-left:auto;color:var(--blue);border-color:rgba(46,166,255,.3)">Seguir</a>
     </div>
-    <div class="ig-rail" id="igRail"></div>
+    <div class="ig-grid">
+      <a class="ig o reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
+      <a class="ig b reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
+      <a class="ig p reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
+      <a class="ig o reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
+      <a class="ig b reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
+      <a class="ig o reveal"><div class="ov"><svg viewBox="0 0 24 24"><path d="M16.5 3A5.5 5.5 0 0012 5 5.5 5.5 0 007.5 3 5.5 5.5 0 002 8.5c0 3.8 3.4 6.9 8.6 11.5l1.4 1.3 1.4-1.3C18.6 15.4 22 12.3 22 8.5A5.5 5.5 0 0016.5 3z"/></svg></div></a>
+    </div>
   </div>
 </section>
 
@@ -510,7 +491,7 @@
       <svg class="ic-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       <svg class="ic-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
     </button>
-    <div class="vol"><button class="vmute" id="muteBtn" type="button" aria-label="Mudo"><svg class="vsvg ic-spk" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13 3a4 4 0 00-2-3.5v7A4 4 0 0016 12z"/></svg><svg class="vsvg ic-mut" viewBox="0 0 24 24" hidden><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button><input type="range" min="0" max="100" value="80" aria-label="Volume"></div>
+    <div class="vol"><svg viewBox="0 0 24 24" width="17" height="17" style="fill:var(--text-2)"><path d="M3 9v6h4l5 5V4L7 9H3zm13 3a4 4 0 00-2-3.5v7A4 4 0 0016 12z"/></svg><input type="range" min="0" max="100" value="80" aria-label="Volume"></div>
   </div>
 </div>
 
@@ -539,78 +520,13 @@
   function $all(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
   function setText(sel,val){$all(sel).forEach(function(e){e.textContent=val;});}
   function setCover(c){$all('[data-cover]').forEach(function(e){e.style.background='radial-gradient(130% 130% at 30% 24%,'+c+'33,transparent 60%),linear-gradient(145deg,#15233f,#0a1326)';});}
-  function render(){var s=PLAYLIST[idx];setText('[data-title]',s.t);setText('[data-artist]',s.a);setCover(s.c);mediaMeta(s.t,s.a);}
+  function render(){var s=PLAYLIST[idx];setText('[data-title]',s.t);setText('[data-artist]',s.a);setCover(s.c);}
 
   function bars(el,n){var f=document.createDocumentFragment();for(var i=0;i<n;i++){f.appendChild(document.createElement('i'));}el.appendChild(f);}
-  bars(document.getElementById('eqBars'),44);bars(document.getElementById('miniWave'),5);
-  var EQ=$all('#eqBars i'), MINI=$all('#miniWave i');
-
-  /* ===== Equalizador reagindo ao áudio real (Web Audio API) ===== */
-  var AC=window.AudioContext||window.webkitAudioContext;
-  var actx=null,analyser=null,freq=null,srcNode=null,realMode=false,realData=false,zeroFrames=0,sm=[],anL=null,anR=null,tdL=null,tdR=null,peakL=0,peakR=0,rcTimer=0;
-  audio.crossOrigin='anonymous';  /* exige CORS no stream; se faltar, cai no fallback abaixo */
-  function buildGraph(){
-    if(actx||!AC)return;
-    try{actx=new AC();srcNode=actx.createMediaElementSource(audio);analyser=actx.createAnalyser();
-      analyser.fftSize=256;analyser.smoothingTimeConstant=0.82;freq=new Uint8Array(analyser.frequencyBinCount);
-      srcNode.connect(analyser);analyser.connect(actx.destination);
-      try{var sp=actx.createChannelSplitter(2);anL=actx.createAnalyser();anR=actx.createAnalyser();
-        anL.fftSize=512;anR.fftSize=512;tdL=new Uint8Array(anL.fftSize);tdR=new Uint8Array(anR.fftSize);
-        srcNode.connect(sp);sp.connect(anL,0);sp.connect(anR,1);}catch(e2){anL=anR=null;}
-      realMode=true;}catch(e){realMode=false;}
-  }
-  audio.addEventListener('error',function(){
-    if(audio.crossOrigin){audio.crossOrigin=null;realMode=false;realData=false;
-      if(playing){try{audio.src=STREAM_URL;audio.play().catch(function(){});}catch(e){}}}
-  });
-
-  /* ===== VUs estéreo (L/R) em tempo real ===== */
-  function rms(buf){var s=0,n=buf.length,i,v;for(i=0;i<n;i++){v=(buf[i]-128)/128;s+=v*v;}return Math.sqrt(s/n);}
-  function setVU(lv,rv){lv=Math.max(0,Math.min(1,lv));rv=Math.max(0,Math.min(1,rv));
-    var fL=document.getElementById('vuL'),fR=document.getElementById('vuR'),pL=document.getElementById('vuLp'),pR=document.getElementById('vuRp');
-    if(fL)fL.style.width=(lv*100).toFixed(1)+'%';if(fR)fR.style.width=(rv*100).toFixed(1)+'%';
-    peakL=Math.max(lv,peakL-0.012);peakR=Math.max(rv,peakR-0.012);
-    if(pL)pL.style.left=(peakL*100).toFixed(1)+'%';if(pR)pR.style.left=(peakR*100).toFixed(1)+'%';}
-  function vuReal(){if(anL&&anR){anL.getByteTimeDomainData(tdL);anR.getByteTimeDomainData(tdR);setVU(rms(tdL)*1.9,rms(tdR)*1.9);}
-    else if(freq){var s=0,k;for(k=0;k<freq.length;k++)s+=freq[k];var lvl=Math.min(1,(s/freq.length)/110);setVU(lvl,lvl);}}
-
-  /* ===== Media Session (capa + controles na tela de bloqueio) ===== */
-  function mediaMeta(title,artist){if(!('mediaSession' in navigator))return;
-    try{navigator.mediaSession.metadata=new MediaMetadata({title:title||'Nova FM 87,9',artist:artist||'Você ouve, você gosta!',album:'Nova FM 87,9',
-      artwork:[{src:'/icons/icon-192.png',sizes:'192x192',type:'image/png'},{src:'/icons/icon-512.png',sizes:'512x512',type:'image/png'}]});}catch(e){}}
-  if('mediaSession' in navigator){try{navigator.mediaSession.setActionHandler('play',function(){setPlaying(true);});
-    navigator.mediaSession.setActionHandler('pause',function(){setPlaying(false);});
-    navigator.mediaSession.setActionHandler('stop',function(){setPlaying(false);});}catch(e){}}
-
-  /* ===== Reconexão automática se o stream cair ===== */
-  function reconnect(){if(!playing)return;clearTimeout(rcTimer);rcTimer=setTimeout(function(){if(!playing)return;
-    try{audio.src=STREAM_URL+(STREAM_URL.indexOf('?')<0?'?':'&')+'_='+Date.now();audio.load();audio.play().catch(function(){});}catch(e){}},2000);}
-  ['stalled','ended'].forEach(function(ev){audio.addEventListener(ev,function(){if(playing)reconnect();});});
-
+  bars(document.getElementById('eqBars'),36);bars(document.getElementById('miniWave'),5);
   var raf,tick=0;
-  function synthFrame(){
-    EQ.forEach(function(b,i){var base=playing?(Math.sin((tick+i*7)/7)*0.5+0.5):0;var h=playing?(8+base*60+Math.random()*16):(5+Math.random()*4);b.style.height=Math.min(100,h)+'%';});
-    var ml=playing?(18+Math.random()*72):8;MINI.forEach(function(x){x.style.height=ml+'%';});
-    setVU(playing?(0.18+Math.random()*0.62):0, playing?(0.18+Math.random()*0.62):0);
-  }
-  function realFrame(){
-    analyser.getByteFrequencyData(freq);
-    var sum=0,bins=freq.length,n=EQ.length,k,i;
-    for(k=0;k<bins;k++)sum+=freq[k];
-    if(sum>0){realData=true;zeroFrames=0;}else{if(++zeroFrames>150)realData=false;}
-    if(!realData){synthFrame();return;}
-    for(i=0;i<n;i++){var idx=Math.floor(Math.pow(i/n,1.45)*(bins*0.62))+1;var v=(freq[idx]||0)/255;
-      sm[i]=(sm[i]||0)*0.55+v*0.45;EQ[i].style.height=(6+sm[i]*94).toFixed(1)+'%';}
-    var lvl=Math.min(1,(sum/bins)/120);
-    MINI.forEach(function(x,j){x.style.height=(10+lvl*90*(0.6+0.4*Math.sin(tick/6+j))).toFixed(1)+'%';});
-    vuReal();
-  }
-  function animate(){
-    raf=requestAnimationFrame(animate);tick++;
-    if(playing&&realMode&&analyser){realFrame();return;}
-    if((tick&1)===0)synthFrame();
-  }
-  if(!reduce) animate(); else EQ.forEach(function(b){b.style.height='38%';});
+  function animate(){tick++;if(tick%2===0){$all('#eqBars i, #miniWave i').forEach(function(b,i){var base=playing?(Math.sin((tick+i*7)/6)*0.5+0.5):0.08;var h=playing?(8+base*70+Math.random()*14):(6+Math.random()*5);b.style.height=Math.min(100,h)+'%';});}raf=requestAnimationFrame(animate);}
+  if(!reduce) animate(); else $all('#eqBars i').forEach(function(b){b.style.height='38%';});
 
   var prog=0;
   setInterval(function(){if((LIVE&&gotLive)||!playing)return;prog+=0.6;if(prog>=100){prog=0;next();}var fill=document.querySelector('[data-progfill]');if(fill)fill.style.width=prog+'%';var cur=Math.floor(prog/100*221),m=String(Math.floor(cur/60)).padStart(2,'0'),s=String(cur%60).padStart(2,'0');var ce=document.querySelector('[data-cur]');if(ce)ce.textContent=m+':'+s;},600);
@@ -620,22 +536,11 @@
   [3,2,1].forEach(function(o){pushHistory(PLAYLIST[o%PLAYLIST.length]);});
   function next(){pushHistory(PLAYLIST[idx]);idx=(idx+1)%PLAYLIST.length;render();}
 
-  function setPlaying(v){playing=v;if('mediaSession' in navigator){navigator.mediaSession.playbackState=v?'playing':'paused';}circle.classList.toggle('playing',v);mini.classList.toggle('playing',v);$all('.nav-cta .lab').forEach(function(e){e.textContent=v?'Pausar':'Ouvir agora';});if(STREAM_URL){if(v){buildGraph();if(actx&&actx.state==='suspended'){actx.resume();}if(audio.src!==STREAM_URL)audio.src=STREAM_URL;audio.play().catch(function(){});}else audio.pause();}}
+  function setPlaying(v){playing=v;circle.classList.toggle('playing',v);mini.classList.toggle('playing',v);$all('.nav-cta .lab').forEach(function(e){e.textContent=v?'Pausar':'Ouvir agora';});if(STREAM_URL){if(v){if(audio.src!==STREAM_URL)audio.src=STREAM_URL;audio.play().catch(function(){});}else audio.pause();}}
   $all('[data-play]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();setPlaying(!playing);});});
 
-  /* ===== Volume + Mudo no player (mudo funciona em todos; slider Android/desktop — iOS ignora volume) ===== */
-  (function(){
-    var vol=document.querySelector('.mini .vol input');
-    var mbtn=document.getElementById('muteBtn');
-    var iOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-    var lastVol=0.8;
-    function paint(){var m=audio.muted||audio.volume===0;var sp=document.querySelector('#muteBtn .ic-spk'),mu=document.querySelector('#muteBtn .ic-mut');if(sp)sp.hidden=m;if(mu)mu.hidden=!m;}
-    if(iOS&&vol)vol.style.display='none';
-    if(vol){audio.volume=vol.value/100;lastVol=audio.volume;
-      vol.addEventListener('input',function(){var v=this.value/100;audio.volume=v;if(v>0){audio.muted=false;lastVol=v;}paint();});}
-    if(mbtn)mbtn.addEventListener('click',function(){audio.muted=!audio.muted;if(!audio.muted&&audio.volume===0){audio.volume=lastVol||0.8;if(vol)vol.value=Math.round(audio.volume*100);}paint();});
-    paint();
-  })();
+  var vol=document.querySelector('.mini .vol input');
+  if(vol)vol.addEventListener('input',function(){audio.volume=this.value/100;});
 
   if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});$all('.reveal').forEach(function(e){io.observe(e);});}else $all('.reveal').forEach(function(e){e.classList.add('in');});
 
@@ -717,7 +622,6 @@ setInterval(function(){liveNow();var a=document.querySelector('.gtab.active');if
       lastKey=key;
       setText('[data-title]',o.title);
       setText('[data-artist]',o.artist||'Nova FM 87,9');
-      mediaMeta(o.title,o.artist||'Nova FM 87,9');
       $all('[data-cover]').forEach(function(e){e.style.background=o.art?('center/cover no-repeat url("'+o.art+'")'):'radial-gradient(130% 130% at 30% 24%,#FF8A1D33,transparent 60%),linear-gradient(145deg,#15233f,#0a1326)';});
     }
     if(o.duration){npDur=o.duration;npEl=o.elapsed||0;}
@@ -735,41 +639,35 @@ setInterval(function(){liveNow();var a=document.querySelector('.gtab.active');if
   if(LIVE){fetchNP();setInterval(fetchNP,12000);setInterval(function(){if(playing&&npDur){npEl=Math.min(npDur,npEl+1);showProg();}},1000);}
 
   render();
+
+  /* ---- RECONEXÃO AUTOMÁTICA DO STREAM (auto-heal) ----
+     A fonte (BUTT->Icecast) é estável; o que derruba o ouvinte é a conexão
+     individual sendo cortada (borda Cloudflare / rede) sem o player se recuperar.
+     Detecta o travamento e reconecta sozinho, sem recarregar a página. */
+  var _rcTimer=null,_rcDelay=1000,_lastT=-1,_lastAdvance=0;
+  function _freshURL(){var s=STREAM_URL;return s+(s.indexOf('?')>-1?'&':'?')+'_='+Date.now();}
+  function _reconnect(){
+    if(!playing||!STREAM_URL)return;
+    try{audio.src=_freshURL();audio.load();}catch(e){}
+    var p=audio.play();
+    if(p&&p.catch)p.catch(function(){_rcDelay=Math.min(_rcDelay*2,15000);_schedule();});
+  }
+  function _schedule(){
+    if(_rcTimer||!playing)return;
+    _rcTimer=setTimeout(function(){_rcTimer=null;_reconnect();},_rcDelay);
+  }
+  audio.addEventListener('playing',function(){_rcDelay=1000;_lastAdvance=Date.now();if(_rcTimer){clearTimeout(_rcTimer);_rcTimer=null;}});
+  ['error','ended','stalled'].forEach(function(ev){audio.addEventListener(ev,function(){if(playing)_schedule();});});
+  /* watchdog: se o tempo do áudio não avançar por ~8s enquanto deveria tocar, reconecta */
+  setInterval(function(){
+    if(!playing||!STREAM_URL){_lastAdvance=Date.now();return;}
+    var t=audio.currentTime;
+    if(t!==_lastT){_lastT=t;_lastAdvance=Date.now();return;}
+    if(_lastAdvance&&(Date.now()-_lastAdvance)>8000){_lastAdvance=Date.now();_schedule();}
+  },2000);
+
   function autostart(){if(!STREAM_URL)return;audio.src=STREAM_URL;var pr=audio.play();if(pr&&pr.then){pr.then(function(){setPlaying(true);}).catch(function(){var go=function(e){var b=e&&e.target&&e.target.closest&&e.target.closest("[data-play]");clean();if(!b)setPlaying(true);};function clean(){["pointerdown","touchstart","keydown"].forEach(function(ev){document.removeEventListener(ev,go);});}["pointerdown","touchstart","keydown"].forEach(function(ev){document.addEventListener(ev,go);});});}}
   autostart();
-
-  /* ===== Instagram: carrossel com embeds oficiais (clicáveis) ===== */
-  var INSTA_POSTS = [
-    /* Cole aqui os links dos posts (um por linha), ex.:
-    'https://www.instagram.com/p/ABC123/',
-    'https://www.instagram.com/reel/XYZ789/', */
-  ];
-  /* Feed automático (SnapWidget): cole aqui o <iframe ...> gerado pelo SnapWidget.
-     Se preenchido, ele tem prioridade e mostra os posts mais recentes sozinho. */
-  var IG_WIDGET = '';
-  /* Feed automático (Behold): cole aqui SÓ o ID do feed (a parte feed-id="AQUI"). */
-  var IG_BEHOLD_FEED = 'xEUxci7vvKnwEGQPAPpO';
-  (function(){
-    var rail=document.getElementById('igRail'); if(!rail)return;
-    if(IG_BEHOLD_FEED){rail.classList.add('is-widget');rail.innerHTML='<behold-widget feed-id="'+IG_BEHOLD_FEED+'"></behold-widget>';
-      if(!document.getElementById('behold-js')){var bs=document.createElement('script');bs.id='behold-js';bs.type='module';bs.src='https://w.behold.so/widget.js';document.body.appendChild(bs);}
-      return;}
-    if(IG_WIDGET&&IG_WIDGET.indexOf('<iframe')>-1){rail.classList.add('is-widget');rail.innerHTML=IG_WIDGET;return;}
-    var posts=INSTA_POSTS.filter(function(u){return u&&(u.indexOf('/p/')>-1||u.indexOf('/reel/')>-1||u.indexOf('/tv/')>-1);});
-    if(posts.length){
-      rail.innerHTML=posts.map(function(u){u=u.split('?')[0];if(u.slice(-1)!=='/')u+='/';
-        return '<div class="ig-card"><blockquote class="instagram-media" data-instgrm-permalink="'+u+'" data-instgrm-version="14" style="margin:0;min-width:0;width:100%"></blockquote></div>';}).join('');
-      var sc=document.createElement('script');sc.async=true;sc.src='https://www.instagram.com/embed.js';
-      sc.onload=function(){if(window.instgrm&&window.instgrm.Embeds)window.instgrm.Embeds.process();};
-      document.body.appendChild(sc);
-    } else {
-      var cores=['#FF8A1D','#2EA6FF','#7A5FFF','#FF4D9D','#22DD6E'];
-      rail.innerHTML=cores.map(function(c){
-        return '<a class="ig-fallback" href="https://instagram.com/novafmsbs" target="_blank" rel="noopener" style="--c:'+c+'">'
-          +'<span class="igf-ic"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.4-3.1a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z"/></svg></span>'
-          +'<span class="igf-tx"><b>@novafmsbs</b><small>Ver no Instagram &rarr;</small></span></a>';}).join('');
-    }
-  })();
 })();
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}</script>
