@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0E1013">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Promoções — Nova FM 87.9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--console:#0E1013;--panel:#16191E;--panel-2:#1C2026;--line:#272C34;--ink:#F1F3EF;--muted:#868E98;--signal:#00C08A;--signal-dim:rgba(0,192,138,.14);--vu:#F4A62A;--onair:#FF4536}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:radial-gradient(700px 380px at 80% -10%,rgba(0,192,138,.08),transparent 60%),var(--console);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+  .app{width:100%;max-width:440px;padding:22px 18px 40px}
+  .head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .freq{font-family:'Oswald';font-weight:600;font-size:30px;letter-spacing:.5px;line-height:1}.freq .dot{color:var(--signal)}
+  .head .lab{font-family:'Space Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .live{margin-left:auto;display:flex;align-items:center;gap:7px}
+  .live .led{width:8px;height:8px;border-radius:50%;background:var(--onair);animation:pulse 1.3s infinite}
+  .live .t{font-family:'Space Mono';font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,69,54,.5)}70%{box-shadow:0 0 0 8px rgba(255,69,54,0)}100%{box-shadow:0 0 0 0 rgba(255,69,54,0)}}
+  h1{font-family:'Oswald';font-weight:600;font-size:32px;letter-spacing:.5px;margin:18px 0 4px;line-height:1.05}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+
+  /* lista de promoções */
+  .promo-list{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+  .promo{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 15px;cursor:pointer;transition:.15s;text-align:left;width:100%;font-family:inherit;color:inherit}
+  .promo:hover,.promo.sel{border-color:var(--signal);background:linear-gradient(180deg,var(--panel),var(--panel-2))}
+  .promo .ico{flex:none;width:42px;height:42px;border-radius:11px;background:var(--signal-dim);color:var(--signal);display:grid;place-items:center}
+  .promo .ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .promo .meta{flex:1;min-width:0}
+  .promo .n{font-family:'Oswald';font-weight:500;font-size:18px;line-height:1.15}
+  .promo .p{font-size:12px;color:var(--muted);margin-top:2px}
+  .promo .tag{font-family:'Space Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--signal);border:1px solid var(--signal);border-radius:999px;padding:3px 8px;flex:none}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+  .chosen{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .chosen .k{font-family:'Space Mono';font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+  .chosen .v{font-family:'Oswald';font-weight:500;font-size:18px}
+  .chosen .back{margin-left:auto;background:none;border:none;color:var(--signal);font-family:'Space Mono';font-size:11px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  label.f{display:block;margin-bottom:16px}
+  label.f .cap{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}
+  input[type=text],input[type=tel]{width:100%;background:#0C0E11;border:1px solid var(--line);border-radius:12px;color:var(--ink);font-family:'Inter';font-size:17px;padding:14px;outline:none;transition:.15s}
+  input:focus{border-color:var(--signal);box-shadow:0 0 0 3px var(--signal-dim)}
+  input.err{border-color:var(--onair)}
+  .msg{font-size:12px;color:var(--onair);margin-top:6px;min-height:14px;display:none}
+  .msg.show{display:block}
+  .consent{display:flex;gap:12px;align-items:flex-start;margin:4px 0 6px;cursor:pointer}
+  .consent .box{flex:none;width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line);background:#0C0E11;display:grid;place-items:center;transition:.15s;margin-top:1px}
+  .consent .box svg{width:14px;height:14px;opacity:0;transform:scale(.5);transition:.15s}
+  .consent input{display:none}
+  .consent input:checked + .box{background:var(--signal-dim);border-color:var(--signal)}
+  .consent input:checked + .box svg{opacity:1;transform:scale(1)}
+  .consent .txt{font-size:13px;line-height:1.5}
+  .whybtn{background:none;border:none;color:var(--signal);font-family:'Space Mono';font-size:11px;cursor:pointer;padding:0;margin:6px 0 0 36px;text-decoration:underline;text-underline-offset:3px}
+  .why{font-size:12px;color:var(--muted);margin:8px 0 0 36px;line-height:1.5;display:none}
+  .why.show{display:block}
+  .go{margin-top:16px;width:100%;border:none;border-radius:15px;cursor:pointer;background:linear-gradient(180deg,#00d296,#00a879);color:#04160f;font-family:'Oswald';font-weight:600;font-size:20px;letter-spacing:1.5px;text-transform:uppercase;padding:17px;box-shadow:0 8px 24px rgba(0,192,138,.28),inset 0 1px 0 rgba(255,255,255,.25);transition:.15s}
+  .go:active{transform:translateY(1px)}
+  .go:disabled{background:#2a2f36;color:#5a636e;box-shadow:none;cursor:not-allowed}
+
+  .state{text-align:center;color:var(--muted);font-size:14px;padding:40px 10px;line-height:1.6}
+  .state .big{font-family:'Oswald';font-weight:500;font-size:22px;color:var(--ink);display:block;margin-bottom:8px;letter-spacing:1px}
+  .state.err .big{color:var(--onair)}
+
+  .done{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 0}
+  .done.show{display:flex}
+  .ring{width:96px;height:96px;border-radius:50%;border:2px solid var(--signal);display:grid;place-items:center;margin-bottom:20px}
+  .ring svg{width:44px;height:44px;color:var(--signal)}
+  .done h2{font-family:'Oswald';font-weight:600;font-size:28px;letter-spacing:1px;margin:0 0 8px}
+  .done p{color:var(--muted);font-size:15px;max-width:310px;line-height:1.6;margin:0}
+  .done .who{color:var(--signal);font-family:'Oswald';font-weight:500;font-size:19px;margin-top:14px}
+  .done .again{margin-top:22px;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:10px 16px;font-family:'Space Mono';font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head"><span class="freq">87.9<span class="dot">.</span></span><span class="lab">Promoções</span>
+    <span class="live" id="live" style="display:none"><span class="led"></span><span class="t" id="liveTxt">No ar</span></span>
+  </div>
+
+  <div id="view">
+    <div class="state" id="state"><span class="big">Carregando…</span>Buscando as promoções no ar.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // >>> Só isto precisa estar certo: a base do Worker. O resto é automático.
+  var BASE = "https://novafm-sorteador.novafmsbs.workers.dev";
+
+  var $=function(id){return document.getElementById(id);};
+  var view=$('view');
+  var PROMOS=[], PROGRAMA=null, escolhida=null;
+
+  function esc(s){return String(s||'').replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
+  function icone(escopo){
+    return escopo==='geral'
+      ? '<svg viewBox="0 0 24 24"><path d="M12 2 15 8l6 .9-4.5 4.3 1 6L12 16.8 6.5 19.2l1-6L3 8.9 9 8z"/></svg>'  // estrela (master)
+      : '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>'; // presente
+  }
+
+  async function iniciar(){
+    try{
+      var a = await fetch(BASE+'/api/agora').then(function(r){return r.json();});
+      PROGRAMA = a.programa;
+      if(PROGRAMA){ $('live').style.display='flex'; $('liveTxt').textContent=PROGRAMA; }
+
+      var p = await fetch(BASE+'/api/promocoes').then(function(r){return r.json();});
+      PROMOS = p.promocoes || [];
+
+      // mostra só as que o ouvinte pode participar agora:
+      // - geral: sempre; - de programa: só se casar com o programa no ar
+      PROMOS = PROMOS.filter(function(x){ return x.escopo==='geral' || x.programa===PROGRAMA; });
+
+      if(!PROMOS.length) return semPromo();
+      if(PROMOS.length===1){ escolhida=PROMOS[0]; return telaForm(); }
+      return telaLista();
+    }catch(e){
+      view.innerHTML='<div class="state err"><span class="big">Ops, sem conexão</span>Não consegui carregar as promoções agora. Tente de novo em instantes.</div>';
+    }
+  }
+
+  function semPromo(){
+    var msg = PROGRAMA
+      ? 'Nenhuma promoção aberta no '+esc(PROGRAMA)+' agora. Fica ligado que já já tem!'
+      : 'Estamos fora do horário de programação. Volte das 8h às 22h pra participar!';
+    view.innerHTML='<div class="state"><span class="big">Nada rolando agora</span>'+msg+'</div>';
+  }
+
+  function telaLista(){
+    var html='<h1>Escolha a promoção</h1><p class="sub">Toque na que você quer participar.</p><div class="promo-list">';
+    PROMOS.forEach(function(x,i){
+      html+='<button class="promo" data-i="'+i+'"><span class="ico">'+icone(x.escopo)+'</span>'+
+        '<span class="meta"><span class="n">'+esc(x.nome)+'</span>'+
+        (x.premio?'<span class="p">'+esc(x.premio)+'</span>':'')+'</span>'+
+        (x.escopo==='geral'?'<span class="tag">Master</span>':'')+'</button>';
+    });
+    html+='</div>';
+    view.innerHTML=html;
+    view.querySelectorAll('.promo').forEach(function(b){
+      b.addEventListener('click',function(){ escolhida=PROMOS[b.dataset.i]; telaForm(); });
+    });
+  }
+
+  function telaForm(){
+    view.innerHTML =
+      '<h1>Participe do sorteio</h1><p class="sub">Preencha rapidinho e já está concorrendo.</p>'+
+      '<div class="card">'+
+        '<div class="chosen"><div><div class="k">Concorrendo em</div><div class="v">'+esc(escolhida.nome)+'</div></div>'+
+        (PROMOS.length>1?'<button class="back" id="back">trocar</button>':'')+'</div>'+
+        '<label class="f"><span class="cap">Seu nome</span>'+
+          '<input type="text" id="nome" autocomplete="name" placeholder="Como te chamam no ar">'+
+          '<span class="msg" id="msgNome">Digite seu nome.</span></label>'+
+        '<label class="f"><span class="cap">Seu WhatsApp (com DDD)</span>'+
+          '<input type="tel" id="fone" inputmode="numeric" autocomplete="tel" placeholder="(47) 99999-9999" maxlength="16">'+
+          '<span class="msg" id="msgFone">Número incompleto — confira o DDD.</span></label>'+
+        '<label class="consent"><input type="checkbox" id="ok">'+
+          '<span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#00C08A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>'+
+          '<span class="txt">Autorizo a Nova FM a usar meu nome e WhatsApp para contato sobre este sorteio.</span></label>'+
+        '<button class="whybtn" id="whyBtn" type="button">por que pedimos isso?</button>'+
+        '<div class="why" id="why">Seu número é usado só para avisar se você ganhar e nunca é repassado a terceiros. Você pode pedir a remoção quando quiser (LGPD).</div>'+
+        '<button class="go" id="go" disabled>Participar</button>'+
+      '</div>'+
+      '<div class="done" id="done">'+
+        '<div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'+
+        '<h2>Você está concorrendo!</h2><p id="doneMsg"></p><div class="who" id="doneWho"></div>'+
+        '<button class="again" id="againBtn">Participar de outra</button></div>';
+
+    if($('back')) $('back').addEventListener('click', telaLista);
+    var fone=$('fone'), nome=$('nome'), ok=$('ok');
+    fone.addEventListener('input',function(){
+      var d=fone.value.replace(/\D/g,'').slice(0,11),o='';
+      if(d.length>0)o='('+d.slice(0,2); if(d.length>=2)o+=') '+d.slice(2,7); if(d.length>=7)o+='-'+d.slice(7,11);
+      fone.value=o; validar();
+    });
+    nome.addEventListener('input',validar); ok.addEventListener('change',validar);
+    $('whyBtn').addEventListener('click',function(){$('why').classList.toggle('show');});
+    $('go').addEventListener('click',enviar);
+    $('againBtn').addEventListener('click',function(){ if(PROMOS.length>1) telaLista(); else telaForm(); });
+  }
+
+  function foneDig(){return ($('fone').value||'').replace(/\D/g,'');}
+  function validar(){
+    var n=($('nome').value||'').trim().length>=2, f=foneDig().length>=10, k=$('ok').checked;
+    $('go').disabled=!(n&&f&&k); return {n:n,f:f};
+  }
+  function marcar(id,mid,v){$(id).classList.toggle('err',v);$(mid).classList.toggle('show',v);}
+
+  async function enviar(){
+    var v=validar(); marcar('nome','msgNome',!v.n); marcar('fone','msgFone',!v.f);
+    if(!v.n||!v.f||!$('ok').checked) return;
+    var dados={nome:$('nome').value.trim(),whatsapp:foneDig(),promocao_id:escolhida.id,consentimento:true};
+    $('go').disabled=true; $('go').textContent='Enviando...';
+    try{
+      var r=await fetch(BASE+'/api/participar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+      var j=await r.json().catch(function(){return {};});
+      if(!r.ok) throw new Error(j.erro||'Erro ao enviar.');
+      $('done').classList.add('show');
+      document.querySelector('.card > .chosen').parentNode.querySelectorAll('label,.whybtn,.why,.go,.chosen').forEach(function(e){e.style.display='none';});
+      $('doneWho').textContent=dados.nome;
+      $('doneMsg').textContent=j.mensagem||('Você entrou em '+escolhida.nome+'!');
+    }catch(e){
+      $('go').disabled=false; $('go').textContent='Participar';
+      $('msgFone').textContent=e.message; $('msgFone').classList.add('show');
+    }
+  }
+
+  iniciar();
+})();
+</script>
+<script src="/nav.js" defer></script>
+</body>
+</html>
