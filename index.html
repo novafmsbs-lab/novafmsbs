@@ -855,5 +855,99 @@ setInterval(function(){liveNow();var a=document.querySelector('.gtab.active');if
   try{fetch('/content/apoiadores.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){render((d&&d.itens&&d.itens.length)?d.itens:def);}).catch(function(){render(def);});}catch(e){render(def);}
 })();
 </script>
+  <style>
+  :root{ --nfmp-orange:#FF8A1D; --nfmp-blue:#2EA6FF; --nfmp-ink:#081634; }
+
+  /* --- Botão neon flutuante --- */
+  .nfmp-btn{
+    position:fixed; left:16px; bottom:88px; z-index:9998;
+    display:flex; align-items:center; gap:11px;
+    padding:13px 18px 13px 15px; border-radius:16px; text-decoration:none;
+    font-family:'Manrope',system-ui,sans-serif; color:#fff;
+    background:linear-gradient(135deg,#FF8A1D 0%,#FF6A00 55%,#7A5FFF 130%);
+    border:1.5px solid rgba(255,255,255,.35);
+    box-shadow:0 0 0 0 rgba(255,138,29,.55), 0 10px 30px rgba(0,0,0,.4);
+    animation:nfmp-pulse 1.8s ease-out infinite;
+  }
+  .nfmp-btn:active{ transform:translateY(1px) }
+  .nfmp-btn .nfmp-ico{ flex:none; width:34px; height:34px; border-radius:11px;
+    background:rgba(255,255,255,.18); display:grid; place-items:center }
+  .nfmp-btn .nfmp-ico svg{ width:20px; height:20px; fill:#fff }
+  .nfmp-btn .nfmp-tx{ display:flex; flex-direction:column; line-height:1.15 }
+  .nfmp-btn .nfmp-tx b{ font-size:15px; font-weight:800; letter-spacing:.5px }
+  .nfmp-btn .nfmp-tx span{ font-size:11px; opacity:.92 }
+  @keyframes nfmp-pulse{
+    0%{ box-shadow:0 0 0 0 rgba(255,138,29,.55), 0 10px 30px rgba(0,0,0,.4) }
+    70%{ box-shadow:0 0 0 16px rgba(255,138,29,0), 0 10px 30px rgba(0,0,0,.4) }
+    100%{ box-shadow:0 0 0 0 rgba(255,138,29,0), 0 10px 30px rgba(0,0,0,.4) }
+  }
+
+  /* --- Pop-up automático (uma vez por dia) --- */
+  .nfmp-pop{ position:fixed; inset:0; z-index:9999; display:none;
+    align-items:center; justify-content:center; padding:22px;
+    background:rgba(4,10,26,.72); backdrop-filter:blur(4px);
+    font-family:'Manrope',system-ui,sans-serif }
+  .nfmp-pop.on{ display:flex; animation:nfmp-fade .25s ease }
+  @keyframes nfmp-fade{ from{opacity:0} to{opacity:1} }
+  .nfmp-card{ width:100%; max-width:360px; border-radius:22px; overflow:hidden;
+    background:linear-gradient(180deg,#0F2749,#081634);
+    border:1px solid rgba(255,255,255,.14); box-shadow:0 24px 60px rgba(0,0,0,.5);
+    text-align:center; color:#F4F7FD; position:relative }
+  .nfmp-card .nfmp-top{ padding:26px 24px 10px;
+    background:linear-gradient(135deg,rgba(255,138,29,.22),transparent) }
+  .nfmp-badge{ display:inline-block; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; color:#FF8A1D; font-weight:800; margin-bottom:8px }
+  .nfmp-card h3{ margin:0 0 6px; font-size:24px; font-weight:800; letter-spacing:.5px }
+  .nfmp-card p{ margin:0; font-size:14px; color:#A9B6CF; line-height:1.5 }
+  .nfmp-card .nfmp-body{ padding:16px 24px 24px }
+  .nfmp-go{ display:block; width:100%; margin-top:4px; padding:15px; border:none;
+    border-radius:14px; cursor:pointer; text-decoration:none;
+    font-size:17px; font-weight:800; letter-spacing:.5px; color:#08122c;
+    background:linear-gradient(135deg,#FF8A1D,#FFB65C);
+    box-shadow:0 8px 22px rgba(255,138,29,.35) }
+  .nfmp-later{ display:block; width:100%; margin-top:10px; background:none; border:none;
+    color:#A9B6CF; font-size:13px; cursor:pointer; padding:6px }
+  .nfmp-x{ position:absolute; top:12px; right:14px; background:none; border:none;
+    color:rgba(255,255,255,.6); font-size:24px; line-height:1; cursor:pointer }
+</style>
+
+<!-- Botão neon fixo -->
+<a class="nfmp-btn" href="/promocoes.html" aria-label="Participar das promoções">
+  <span class="nfmp-ico">
+    <svg viewBox="0 0 24 24"><path d="M12 2 15 8.3l6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+  </span>
+  <span class="nfmp-tx"><b>PROMOÇÕES</b><span>Concorra a prêmios ao vivo</span></span>
+</a>
+
+<!-- Pop-up automático -->
+<div class="nfmp-pop" id="nfmpPop" role="dialog" aria-modal="true" aria-label="Promoção">
+  <div class="nfmp-card">
+    <button class="nfmp-x" id="nfmpClose" aria-label="Fechar">&times;</button>
+    <div class="nfmp-top">
+      <span class="nfmp-badge">Nova FM 87,9</span>
+      <h3>Tá no ar, tá valendo!</h3>
+      <p>Cadastre-se rapidinho e concorra aos prêmios do programa de agora.</p>
+    </div>
+    <div class="nfmp-body">
+      <a class="nfmp-go" href="/promocoes.html">Quero participar</a>
+      <button class="nfmp-later" id="nfmpLater">Agora não</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var KEY='nfmp_pop_dia';
+  var pop=document.getElementById('nfmpPop');
+  var hoje=new Date().toISOString().slice(0,10);
+  function fecha(){ pop.classList.remove('on'); try{localStorage.setItem(KEY,hoje);}catch(e){} }
+  document.getElementById('nfmpClose').addEventListener('click',fecha);
+  document.getElementById('nfmpLater').addEventListener('click',fecha);
+  pop.addEventListener('click',function(e){ if(e.target===pop) fecha(); });
+  // mostra 1x por dia, 2,5s após entrar
+  var visto; try{ visto=localStorage.getItem(KEY); }catch(e){ visto=null; }
+  if(visto!==hoje){ setTimeout(function(){ pop.classList.add('on'); },2500); }
+})();
+</script>
 </body>
 </html>
