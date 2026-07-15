@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorteador no Ar — Estúdio · Nova FM 87.9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --console:#0E1013; --panel:#16191E; --panel-2:#1C2026; --line:#272C34;
+    --ink:#F1F3EF; --muted:#868E98; --signal:#00C08A; --signal-dim:rgba(0,192,138,.14);
+    --vu:#F4A62A; --onair:#FF4536; --shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:radial-gradient(1200px 600px at 75% -10%,rgba(0,192,138,.06),transparent 60%),radial-gradient(900px 500px at 0% 110%,rgba(244,166,42,.05),transparent 60%),var(--console);
+    color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+
+  .topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand .freq{font-family:'Oswald';font-weight:600;font-size:30px;letter-spacing:.5px;line-height:1}
+  .brand .dot{color:var(--signal)}
+  .brand .name{font-family:'Space Mono';font-size:12px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+  .spacer{flex:1}
+  .onair{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+  .onair .led{width:9px;height:9px;border-radius:50%;background:#4a2020}
+  .onair.live .led{background:var(--onair);animation:pulse 1.3s infinite}
+  .onair .lab{font-family:'Space Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .onair.live .lab{color:var(--ink)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,69,54,.55)}70%{box-shadow:0 0 0 9px rgba(255,69,54,0)}100%{box-shadow:0 0 0 0 rgba(255,69,54,0)}}
+  .ghost-btn{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 13px;font-family:'Space Mono';font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.15s}
+  .ghost-btn:hover{color:var(--ink);border-color:#3a424d}
+
+  .grid{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+  .pad{padding:18px}
+  .eyebrow{font-family:'Space Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  .eyebrow .num{color:var(--signal);margin-right:8px}
+
+  label.f{display:block;margin-bottom:14px}
+  label.f .cap{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select{width:100%;background:#0C0E11;border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-family:'Inter';font-size:14px;padding:11px 12px;outline:none;transition:.15s}
+  select{cursor:pointer}
+  input:focus,select:focus{border-color:var(--signal);box-shadow:0 0 0 3px var(--signal-dim)}
+  .row{display:flex;gap:10px} .row .f{flex:1}
+  .hint{font-size:11px;color:var(--muted);margin-top:-6px;margin-bottom:12px;line-height:1.5}
+
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tag{font-family:'Space Mono';font-size:10px;letter-spacing:1px;text-transform:uppercase;
+    background:#0C0E11;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 10px}
+  .tag.on{border-color:var(--signal);color:var(--signal)}
+
+  .go{margin-top:8px;width:100%;border:none;border-radius:14px;cursor:pointer;
+    background:linear-gradient(180deg,#00d296,#00a879);color:#04160f;
+    font-family:'Oswald';font-weight:600;font-size:20px;letter-spacing:2px;text-transform:uppercase;
+    padding:16px;box-shadow:0 8px 24px rgba(0,192,138,.28),inset 0 1px 0 rgba(255,255,255,.25);transition:.15s}
+  .go:hover{transform:translateY(-1px)} .go:active{transform:translateY(1px)}
+  .go:disabled{background:#2a2f36;color:#5a636e;box-shadow:none;cursor:not-allowed;transform:none}
+  .go .kbd{font-family:'Space Mono';font-size:10px;letter-spacing:1px;opacity:.6;display:block;margin-top:2px;font-weight:400}
+
+  .monitor{min-height:520px;display:flex;flex-direction:column;padding:22px}
+  .stat-row{display:flex;gap:22px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
+  .stat .n{font-family:'Oswald';font-weight:600;font-size:26px;line-height:1}
+  .stat .l{font-family:'Space Mono';font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .stat .n.ok{color:var(--signal)}
+
+  .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px 10px;position:relative}
+  .idle{color:var(--muted);font-size:14px;max-width:360px;line-height:1.6}
+  .idle .big{font-family:'Oswald';font-weight:500;font-size:22px;color:var(--ink);display:block;margin-bottom:8px;letter-spacing:1px}
+  .idle.err{color:var(--onair)}
+
+  .dial-wrap{width:100%;max-width:560px;display:none}
+  .dial-wrap.show{display:block}
+  .mhz{font-family:'Space Mono';font-size:13px;letter-spacing:2px;color:var(--vu);min-height:18px}
+  .mhz.locked{color:var(--signal)}
+  .handle{font-family:'Oswald';font-weight:600;line-height:1.05;letter-spacing:1px;font-size:clamp(30px,7vw,64px);margin:10px 0 6px;word-break:break-word;transition:transform .2s}
+  .handle.locked{color:var(--signal);text-shadow:0 0 34px rgba(0,192,138,.35)}
+  .zap{font-size:14px;color:var(--muted);min-height:20px;font-family:'Space Mono'}
+  .status{font-family:'Space Mono';font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);min-height:16px;margin-top:10px}
+  .status.locked{color:var(--signal)}
+  .dial{position:relative;height:64px;margin:22px 0 6px}
+  .ticks{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 2px;opacity:.5}
+  .ticks i{display:block;width:1px;background:var(--muted)}
+  .needle{position:absolute;top:-6px;bottom:-6px;left:50%;width:2px;background:var(--vu);box-shadow:0 0 12px var(--vu);transform:translateX(-1px);transition:background .3s,box-shadow .3s}
+  .needle.locked{background:var(--signal);box-shadow:0 0 16px var(--signal)}
+  .vu{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:40px;margin-top:8px}
+  .vu b{width:6px;background:var(--vu);border-radius:2px;height:6px;transition:height .08s,background .3s}
+  .vu.locked b{background:var(--signal)}
+  .ring{position:absolute;top:50%;left:50%;width:40px;height:40px;border:2px solid var(--signal);border-radius:50%;transform:translate(-50%,-50%);opacity:0;pointer-events:none}
+  .ring.fire{animation:ring 900ms ease-out}
+  @keyframes ring{0%{opacity:.7;width:40px;height:40px}100%{opacity:0;width:520px;height:520px}}
+
+  .results{margin-top:16px;border-top:1px solid var(--line);padding-top:16px;display:none}
+  .results.show{display:block}
+  .res-title{font-family:'Space Mono';font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .win{display:flex;align-items:center;gap:12px;background:#0C0E11;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px}
+  .win .badge{flex:none;width:26px;height:26px;border-radius:50%;background:var(--signal-dim);color:var(--signal);border:1px solid var(--signal);display:grid;place-items:center;font-family:'Space Mono';font-size:12px}
+  .win .h{font-family:'Oswald';font-weight:500;font-size:18px}
+  .win .c{font-size:12px;color:var(--muted);font-family:'Space Mono'}
+  .win .meta{flex:1;min-width:0}
+  .win .ch{font-family:'Space Mono';font-size:11px;color:var(--muted)}
+  .win.sup{opacity:.72}
+  .win.sup .badge{background:rgba(244,166,42,.12);color:var(--vu);border-color:var(--vu)}
+  .foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+  .audit{font-family:'Space Mono';font-size:10px;color:var(--muted);letter-spacing:1px}
+  .grp{margin-top:14px}
+  .grp.hide{display:none}
+
+  body.fs .side{display:none}
+  body.fs .grid{grid-template-columns:1fr}
+  body.fs .monitor{min-height:calc(100vh - 130px)}
+  body.fs .handle{font-size:clamp(44px,11vw,120px)}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel);border:1px solid var(--signal);color:var(--ink);padding:11px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><span class="freq">87.9<span class="dot">.</span></span><span class="name">Sorteador no Ar · Estúdio</span></div>
+    <div class="spacer"></div>
+    <div class="onair" id="onair"><span class="led"></span><span class="lab" id="onairLab">Fora do ar</span></div>
+    <button class="ghost-btn" id="fsBtn">⛶ Tela cheia</button>
+  </div>
+
+  <div class="grid">
+    <!-- CONSOLE -->
+    <div class="panel pad side">
+      <p class="eyebrow"><span class="num">01</span>Conexão</p>
+      <label class="f"><span class="cap">URL do Worker</span>
+        <input type="text" id="url" placeholder="http://127.0.0.1:8787"></label>
+      <label class="f"><span class="cap">Senha do estúdio</span>
+        <input type="password" id="token" placeholder="ADMIN_TOKEN"></label>
+      <button class="ghost-btn" id="connBtn" style="width:100%">Conectar</button>
+      <p class="hint" id="connMsg" style="margin-top:10px"></p>
+
+      <p class="eyebrow" style="margin-top:20px"><span class="num">02</span>Promoção</p>
+      <label class="f"><span class="cap">Escolha a promoção</span>
+        <select id="promo"><option>— conecte primeiro —</option></select></label>
+      <div class="tags" id="tags"></div>
+
+      <p class="eyebrow" style="margin-top:6px"><span class="num">03</span>Sorteio</p>
+      <div class="row">
+        <label class="f"><span class="cap">Ganhadores</span><input type="number" id="nWin" value="1" min="1"></label>
+        <label class="f"><span class="cap">Suplentes</span><input type="number" id="nSup" value="1" min="0"></label>
+      </div>
+      <button class="go" id="drawBtn" disabled>Sortear no ar<span class="kbd">ou aperte espaço</span></button>
+    </div>
+
+    <!-- MONITOR -->
+    <div class="panel monitor">
+      <div class="stat-row">
+        <div class="stat"><div class="n ok" id="sPart">—</div><div class="l">Participantes no bolo</div></div>
+        <div class="stat"><div class="n" id="sCh">—</div><div class="l">Chances totais</div></div>
+        <div class="stat"><div class="n" id="sModo" style="font-size:19px;padding-top:5px">—</div><div class="l">Modo</div></div>
+      </div>
+
+      <div class="stage">
+        <div class="ring" id="ring"></div>
+        <div class="idle" id="idle">
+          <span class="big">Pronto para sintonizar</span>
+          Conecte no Worker, escolha a promoção e aperte <b>Sortear no ar</b>.
+          O dial roda as frequências e trava na do ganhador.
+        </div>
+        <div class="dial-wrap" id="dialWrap">
+          <div class="mhz" id="mhz">-- . -- MHz</div>
+          <div class="handle" id="handle">—</div>
+          <div class="zap" id="zapLine"></div>
+          <div class="dial">
+            <div class="ticks" id="ticks"></div>
+            <div class="needle" id="needle"></div>
+          </div>
+          <div class="vu" id="vu"></div>
+          <div class="status" id="status"></div>
+        </div>
+      </div>
+
+      <div class="results" id="results">
+        <div class="grp" id="grpWin">
+          <p class="res-title">No ar · Ganhadores</p>
+          <div id="winList"></div>
+        </div>
+        <div class="grp hide" id="grpSup">
+          <p class="res-title">Reserva · Suplentes</p>
+          <div id="supList"></div>
+        </div>
+        <div class="foot">
+          <button class="ghost-btn" id="copyBtn">Copiar resultado</button>
+          <button class="ghost-btn" id="againBtn">Limpar tela</button>
+          <span class="audit" id="audit"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  // ======= Preencha aqui pra não digitar toda vez =======
+  var URL_PADRAO   = "http://127.0.0.1:8787";
+  var SENHA_PADRAO = "";   // deixe vazio em produção e digite na hora
+  // =====================================================
+
+  var $=function(id){return document.getElementById(id);};
+  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
+  var API="", TOKEN="", POOL=[], PROMOS=[], drawing=false, lastRes=null;
+
+  $('url').value = URL_PADRAO;
+  $('token').value = SENHA_PADRAO;
+
+  // dial + vu
+  var ticks=$('ticks');
+  for(var i=0;i<41;i++){var t=document.createElement('i');t.style.height=(i%5===0?'22px':'11px');ticks.appendChild(t);}
+  var vu=$('vu'), bars=[];
+  for(var j=0;j<24;j++){var b=document.createElement('b');vu.appendChild(b);bars.push(b);}
+
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
+  function headers(){return {'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'};}
+
+  async function api(path, opts){
+    var r = await fetch(API+path, opts||{});
+    var j = await r.json().catch(function(){return {};});
+    if(!r.ok) throw new Error(j.erro || ('Erro '+r.status));
+    return j;
+  }
+
+  // ---- conectar ----
+  $('connBtn').addEventListener('click', conectar);
+  async function conectar(){
+    API = $('url').value.trim().replace(/\/$/,'');
+    TOKEN = $('token').value.trim();
+    if(!API || !TOKEN){ $('connMsg').textContent='Preencha a URL e a senha.'; return; }
+    $('connMsg').textContent='Conectando...';
+    try{
+      var p = await api('/api/promocoes');
+      PROMOS = p.promocoes || [];
+      if(!PROMOS.length){ $('connMsg').textContent='Conectado, mas não há promoção aberta.'; return; }
+      var sel=$('promo'); sel.innerHTML='';
+      PROMOS.forEach(function(x){
+        var o=document.createElement('option');
+        o.value=x.id; o.textContent=x.nome + (x.premio? ' — '+x.premio : '');
+        sel.appendChild(o);
+      });
+      $('connMsg').textContent='Conectado ✓  '+PROMOS.length+' promoção(ões) aberta(s).';
+      await carregarPool();
+    }catch(e){
+      $('connMsg').textContent = 'Falhou: '+e.message+'  (a senha está certa? o worker está no ar?)';
+    }
+  }
+
+  $('promo').addEventListener('change', carregarPool);
+
+  async function carregarPool(){
+    var id = $('promo').value;
+    if(!id) return;
+    try{
+      var d = await api('/api/admin/pool?promocao_id='+id, {headers:headers()});
+      POOL = d.pool || [];
+      $('sPart').textContent = d.participantes;
+      $('sCh').textContent   = d.chances;
+      $('sModo').textContent = d.promocao.modo === 'cartela' ? 'Cartela' : 'Igualdade';
+
+      var p = d.promocao;
+      $('tags').innerHTML =
+        '<span class="tag on">'+(p.modo==='cartela'?'Cartela':'Igualdade pura')+'</span>'+
+        '<span class="tag">'+(p.escopo==='programa'? p.programa : 'Sorteio geral')+'</span>'+
+        '<span class="tag">carência '+p.carencia_dias+'d</span>'+
+        '<span class="tag">teto '+p.teto_diario+'/dia</span>';
+
+      $('drawBtn').disabled = d.participantes === 0;
+      $('idle').classList.remove('err');
+      if(d.participantes===0){
+        $('idle').innerHTML='<span class="big">Bolo vazio</span>Ninguém elegível nesta promoção ainda — ou todos estão em carência.';
+        $('idle').classList.add('err');
+      }
+    }catch(e){ toast('Erro ao carregar o bolo: '+e.message); }
+  }
+
+  // ---- animação ----
+  function dance(on){ bars.forEach(function(b){ b.style.height = on ? (6+Math.random()*34)+'px' : '6px'; }); }
+  function locked(on){
+    $('needle').classList.toggle('locked',on); $('vu').classList.toggle('locked',on);
+    $('handle').classList.toggle('locked',on); $('mhz').classList.toggle('locked',on);
+    $('status').classList.toggle('locked',on);
+  }
+
+  function reveal(vencedor, nomes, rotulo){
+    return new Promise(function(resolve){
+      locked(false);
+      $('status').textContent = rotulo || 'sintonizando…';
+      $('zapLine').textContent = '';
+      var start=performance.now(), dur=2200+Math.random()*600, last=0, gap=45, vt=0;
+      function frame(now){
+        var t=(now-start)/dur;
+        if(t>=1){
+          $('handle').textContent = vencedor.nome;
+          $('mhz').textContent = '87 . 9 MHz';
+          $('zapLine').textContent = mascara(vencedor.whatsapp) + '  ·  ' + vencedor.chances + ' chance(s)';
+          $('needle').style.left='50%';
+          locked(true); dance(false);
+          $('status').textContent='sintonizado ✓';
+          $('handle').style.transform='scale(1.04)';
+          setTimeout(function(){$('handle').style.transform='scale(1)';},180);
+          var r=$('ring'); r.classList.remove('fire'); void r.offsetWidth; r.classList.add('fire');
+          resolve(); return;
+        }
+        var ease=1-Math.pow(1-t,3);
+        gap = 45 + ease*260;
+        if(now-last>gap){
+          last=now;
+          $('handle').textContent = nomes[Math.floor(Math.random()*nomes.length)];
+          var mhz=(76+Math.random()*32).toFixed(1);
+          $('mhz').textContent = mhz.replace('.',' . ')+' MHz';
+          $('needle').style.left=(12+Math.random()*76)+'%';
+        }
+        if(now-vt>70){ vt=now; dance(true); }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  function mascara(z){
+    if(!z) return '';
+    var d=String(z);
+    return '('+d.slice(0,2)+') '+d.slice(2,-4).replace(/\d/g,'•')+d.slice(-4);
+  }
+
+  function card(p, idx, sup){
+    var d=document.createElement('div');
+    d.className='win'+(sup?' sup':'');
+    d.innerHTML='<span class="badge">'+(sup?'S':'')+idx+'</span>'+
+      '<div class="meta"><div class="h">'+esc(p.nome)+'</div><div class="c">'+mascara(p.whatsapp)+'</div></div>'+
+      '<span class="ch">'+p.chances+' ch.</span>';
+    return d;
+  }
+  function esc(s){return String(s||'').replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
+
+  // ---- sortear ----
+  $('drawBtn').addEventListener('click', sortear);
+  async function sortear(){
+    if(drawing || !API) return;
+    drawing=true; $('drawBtn').disabled=true;
+    $('idle').style.display='none'; $('dialWrap').classList.add('show');
+    $('results').classList.remove('show');
+    $('onair').classList.add('live'); $('onairLab').textContent='No ar';
+
+    try{
+      var res = await api('/api/admin/sortear', {
+        method:'POST', headers:headers(),
+        body: JSON.stringify({
+          promocao_id: parseInt($('promo').value,10),
+          ganhadores: parseInt($('nWin').value,10)||1,
+          suplentes: parseInt($('nSup').value,10)||0
+        })
+      });
+
+      // nomes que rodam no dial = o bolo real daquele sorteio
+      var nomes = POOL.length ? POOL.map(function(p){return p.nome;}) : res.ganhadores.map(function(g){return g.nome;});
+
+      for(var i=0;i<res.ganhadores.length;i++){
+        await reveal(res.ganhadores[i], nomes, 'sintonizando…');
+        await sleep(900);
+      }
+      for(var k=0;k<res.suplentes.length;k++){
+        await reveal(res.suplentes[k], nomes, 'sorteando suplente…');
+        await sleep(700);
+      }
+
+      var wl=$('winList'); wl.innerHTML='';
+      res.ganhadores.forEach(function(g,ix){ wl.appendChild(card(g,ix+1,false)); });
+      if(res.suplentes.length){
+        $('grpSup').classList.remove('hide');
+        var sl=$('supList'); sl.innerHTML='';
+        res.suplentes.forEach(function(g,ix){ sl.appendChild(card(g,ix+1,true)); });
+      } else { $('grpSup').classList.add('hide'); }
+
+      var quando = new Date().toLocaleString('pt-BR');
+      $('audit').textContent = 'Sorteio #'+res.sorteio_id+' · '+quando+' · '+res.participantes+
+        ' participantes · '+res.chances+' chances · semente '+res.seed.slice(0,12)+'…';
+      lastRes = {res:res, quando:quando};
+      $('results').classList.add('show');
+      $('onairLab').textContent='Sintonizado';
+
+      await carregarPool(); // ganhadores saem do bolo (carência)
+    }catch(e){
+      toast('Erro no sorteio: '+e.message);
+      $('status').textContent='falhou';
+      $('onair').classList.remove('live'); $('onairLab').textContent='Fora do ar';
+    }
+    drawing=false; $('drawBtn').disabled=false;
+  }
+
+  $('againBtn').addEventListener('click', function(){
+    $('results').classList.remove('show'); $('dialWrap').classList.remove('show');
+    $('idle').style.display='block';
+    $('onair').classList.remove('live'); $('onairLab').textContent='Fora do ar';
+  });
+
+  $('copyBtn').addEventListener('click', function(){
+    if(!lastRes) return;
+    var r=lastRes.res, L=['🎙️ Sorteio Nova FM 87.9 — '+r.promocao, lastRes.quando, ''];
+    L.push('GANHADORES:');
+    r.ganhadores.forEach(function(g,i){ L.push((i+1)+'. '+g.nome+' — '+g.whatsapp); });
+    if(r.suplentes.length){ L.push('','SUPLENTES:'); r.suplentes.forEach(function(g,i){ L.push((i+1)+'. '+g.nome+' — '+g.whatsapp); }); }
+    L.push('', r.participantes+' participantes · '+r.chances+' chances · modo '+r.modo);
+    L.push('Auditoria: sorteio #'+r.sorteio_id+' · semente '+r.seed);
+    navigator.clipboard.writeText(L.join('\n')).then(
+      function(){toast('Resultado copiado ✓ (com telefones)');},
+      function(){toast('Não consegui copiar.');});
+  });
+
+  $('fsBtn').addEventListener('click', function(){
+    document.body.classList.toggle('fs');
+    if(document.body.classList.contains('fs')){
+      if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
+      $('fsBtn').textContent='⛶ Sair';
+    }else{
+      if(document.exitFullscreen && document.fullscreenElement) document.exitFullscreen().catch(function(){});
+      $('fsBtn').textContent='⛶ Tela cheia';
+    }
+  });
+
+  document.addEventListener('keydown', function(ev){
+    var tag=(ev.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='select'||tag==='textarea') return;
+    if(ev.code==='Space'||ev.code==='Enter'){ ev.preventDefault(); if(!drawing && !$('drawBtn').disabled) sortear(); }
+  });
+
+  if(URL_PADRAO && SENHA_PADRAO) conectar();
+})();
+</script>
+</body>
+</html>

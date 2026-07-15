@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central Nova FM — Administração</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--console:#0E1013;--panel:#16191E;--panel-2:#1C2026;--line:#272C34;--ink:#F1F3EF;--muted:#868E98;--signal:#00C08A;--signal-dim:rgba(0,192,138,.14);--vu:#F4A62A;--onair:#FF4536}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:radial-gradient(1000px 500px at 80% -10%,rgba(0,192,138,.05),transparent 60%),var(--console);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:22px 20px 60px}
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .freq{font-family:'Oswald';font-weight:600;font-size:28px}.freq .d{color:var(--signal)}
+  .top .lab{font-family:'Space Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+  h2{font-family:'Oswald';font-weight:500;font-size:20px;margin:0 0 14px;letter-spacing:.5px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select{width:100%;background:#0C0E11;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:'Inter';font-size:14px;padding:10px 11px;outline:none}
+  input:focus,select:focus{border-color:var(--signal);box-shadow:0 0 0 3px var(--signal-dim)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+  .btn{background:var(--signal);color:#04160f;border:none;border-radius:9px;padding:10px 16px;font-family:'Oswald';font-weight:600;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+  .btn.ghost{background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+  .btn.sm{padding:7px 11px;font-size:12px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:9px 16px;font-family:'Space Mono';font-size:12px;letter-spacing:1px;cursor:pointer}
+  .tab.on{border-color:var(--signal);color:var(--signal)}
+  .hide{display:none}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-family:'Space Mono';font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 6px;border-bottom:1px solid var(--line)}
+  td{padding:7px 6px;border-bottom:1px solid var(--line)}
+  td input{padding:7px 8px;font-size:13px}
+  .pill{font-family:'Space Mono';font-size:10px;letter-spacing:1px;text-transform:uppercase;border-radius:999px;padding:3px 9px;border:1px solid var(--line);color:var(--muted)}
+  .pill.on{border-color:var(--signal);color:var(--signal)}
+  .pill.off{border-color:var(--onair);color:var(--onair)}
+  .msg{font-size:13px;margin-top:10px;min-height:16px}
+  .msg.ok{color:var(--signal)} .msg.err{color:var(--onair)}
+  .hint{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 12px}
+  .del{color:var(--onair);cursor:pointer;font-family:'Space Mono';font-size:12px;background:none;border:none}
+  a.link{color:var(--signal);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="freq">87.9<span class="d">.</span></span><span class="lab">Central de Administração</span></div>
+
+  <!-- CONEXÃO -->
+  <div class="panel" id="connPanel">
+    <h2>Conexão</h2>
+    <div class="row">
+      <div style="flex:2"><label>URL do Worker</label><input id="url" placeholder="https://novafm-sorteador.novafmsbs.workers.dev"></div>
+      <div><label>Senha do estúdio</label><input id="token" type="password" placeholder="ADMIN_TOKEN"></div>
+    </div>
+    <div style="margin-top:12px"><button class="btn" id="connBtn">Conectar</button></div>
+    <div class="msg" id="connMsg"></div>
+  </div>
+
+  <div id="app" class="hide">
+    <div class="tabs">
+      <div class="tab on" data-tab="prog">Programação</div>
+      <div class="tab" data-tab="promo">Promoções</div>
+      <div class="tab" data-tab="sort">Últimos sorteados</div>
+    </div>
+
+    <!-- PROGRAMAÇÃO -->
+    <div class="panel tabc" id="tab-prog">
+      <h2>Programação</h2>
+      <p class="hint">A grade que o sistema usa pra carimbar as participações. Edite, adicione ou desligue programas e salve. Horário no formato <b>HH:MM</b>.</p>
+      <table><thead><tr><th>Programa</th><th style="width:90px">Início</th><th style="width:90px">Fim</th><th style="width:70px">Ativo</th><th style="width:40px"></th></tr></thead>
+        <tbody id="gradeBody"></tbody></table>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn ghost sm" id="addProg">+ Adicionar programa</button>
+        <button class="btn" id="saveProg">Salvar grade</button>
+      </div>
+      <div class="msg" id="progMsg"></div>
+    </div>
+
+    <!-- PROMOÇÕES -->
+    <div class="panel tabc hide" id="tab-promo">
+      <h2>Nova promoção</h2>
+      <div class="row">
+        <div style="flex:2"><label>Nome</label><input id="pNome" placeholder="Sorteio da Manhã / Vai de Bike Nova"></div>
+        <div style="flex:2"><label>Prêmio</label><input id="pPremio" placeholder="Kit Nova FM"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>Tipo</label><select id="pEscopo"><option value="programa">De programa</option><option value="geral">Geral / Master (por volume)</option></select></div>
+        <div id="pProgWrap"><label>Programa</label><select id="pPrograma"></select></div>
+        <div><label>Justiça</label><select id="pModo"><option value="igualdade">Igualdade (1 por pessoa)</option><option value="cartela">Cartela (por volume)</option></select></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>Carência (dias)</label><input id="pCar" type="number" value="30"></div>
+        <div><label>Teto por dia</label><input id="pTeto" type="number" value="1"></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn" id="createPromo" style="width:100%">Criar promoção</button></div>
+      </div>
+      <p class="hint" id="promoDica" style="margin-top:12px"></p>
+      <div class="msg" id="promoMsg"></div>
+
+      <h2 style="margin-top:8px">Promoções</h2>
+      <table><thead><tr><th>Nome</th><th>Tipo</th><th>Justiça</th><th>Particip.</th><th>Status</th><th></th></tr></thead>
+        <tbody id="promoBody"></tbody></table>
+    </div>
+
+    <!-- SORTEADOS -->
+    <div class="panel tabc hide" id="tab-sort">
+      <h2>Últimos sorteados</h2>
+      <p class="hint">Histórico dos sorteios já realizados — a memória da rádio, pra transparência.</p>
+      <button class="btn ghost sm" id="reloadSort">Atualizar</button>
+      <table style="margin-top:12px"><thead><tr><th>Quando</th><th>Promoção</th><th>Ganhador(es)</th><th>Bolo</th></tr></thead>
+        <tbody id="sortBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var URL_PADRAO = "https://novafm-sorteador.novafmsbs.workers.dev";
+  var $=function(id){return document.getElementById(id);};
+  var API="", TOKEN="";
+  $('url').value = URL_PADRAO;
+
+  function H(){return {'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'};}
+  async function api(path, opts){
+    var r = await fetch(API+path, opts||{});
+    var j = await r.json().catch(function(){return {};});
+    if(!r.ok) throw new Error(j.erro||('Erro '+r.status));
+    return j;
+  }
+  function setMsg(id,txt,ok){var e=$(id);e.textContent=txt;e.className='msg '+(ok?'ok':'err');}
+
+  // ---- conectar ----
+  $('connBtn').addEventListener('click', async function(){
+    API=$('url').value.trim().replace(/\/$/,''); TOKEN=$('token').value.trim();
+    if(!API||!TOKEN){ setMsg('connMsg','Preencha URL e senha.',false); return; }
+    setMsg('connMsg','Conectando...',true);
+    try{
+      await api('/api/admin/programacao',{headers:H()});
+      setMsg('connMsg','Conectado ✓',true);
+      $('app').classList.remove('hide');
+      await Promise.all([carregarGrade(), carregarPromos(), carregarSorteados()]);
+    }catch(e){ setMsg('connMsg','Falhou: '+e.message,false); }
+  });
+
+  // ---- tabs ----
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+      t.classList.add('on');
+      document.querySelectorAll('.tabc').forEach(function(c){c.classList.add('hide');});
+      $('tab-'+t.dataset.tab).classList.remove('hide');
+    });
+  });
+
+  // ============ PROGRAMAÇÃO ============
+  function linhaGrade(it){
+    var tr=document.createElement('tr');
+    tr.innerHTML =
+      '<td><input class="g-nome" value="'+(it.nome||'').replace(/"/g,'&quot;')+'"></td>'+
+      '<td><input class="g-ini" value="'+(it.inicio||'')+'" placeholder="08:00"></td>'+
+      '<td><input class="g-fim" value="'+(it.fim||'')+'" placeholder="10:00"></td>'+
+      '<td style="text-align:center"><input class="g-ativo" type="checkbox" '+(it.ativo?'checked':'')+' style="width:auto"></td>'+
+      '<td><button class="del">✕</button></td>';
+    tr.querySelector('.del').addEventListener('click',function(){tr.remove();});
+    return tr;
+  }
+  async function carregarGrade(){
+    var d = await api('/api/admin/programacao',{headers:H()});
+    var b=$('gradeBody'); b.innerHTML='';
+    (d.itens||[]).forEach(function(it){ b.appendChild(linhaGrade(it)); });
+    preencherProgramas(d.itens||[]);
+  }
+  $('addProg').addEventListener('click',function(){ $('gradeBody').appendChild(linhaGrade({ativo:1})); });
+  $('saveProg').addEventListener('click', async function(){
+    var itens=[];
+    $('gradeBody').querySelectorAll('tr').forEach(function(tr){
+      itens.push({
+        nome: tr.querySelector('.g-nome').value.trim(),
+        inicio: tr.querySelector('.g-ini').value.trim(),
+        fim: tr.querySelector('.g-fim').value.trim(),
+        ativo: tr.querySelector('.g-ativo').checked
+      });
+    });
+    for(var i=0;i<itens.length;i++){
+      if(!/^\d{2}:\d{2}$/.test(itens[i].inicio)||!/^\d{2}:\d{2}$/.test(itens[i].fim)){
+        setMsg('progMsg','Horário inválido em "'+(itens[i].nome||'?')+'". Use HH:MM.',false); return;
+      }
+    }
+    try{
+      await api('/api/admin/programacao',{method:'POST',headers:H(),body:JSON.stringify({itens:itens})});
+      setMsg('progMsg','Grade salva ✓ — já valendo pra próxima participação.',true);
+      preencherProgramas(itens);
+    }catch(e){ setMsg('progMsg','Erro: '+e.message,false); }
+  });
+
+  function preencherProgramas(itens){
+    var sel=$('pPrograma'); sel.innerHTML='';
+    itens.filter(function(x){return x.ativo;}).forEach(function(x){
+      var o=document.createElement('option'); o.value=x.nome; o.textContent=x.nome; sel.appendChild(o);
+    });
+  }
+
+  // ============ PROMOÇÕES ============
+  function atualizarDica(){
+    var esc=$('pEscopo').value, modo=$('pModo').value;
+    $('pProgWrap').style.display = esc==='programa' ? '' : 'none';
+    var t='';
+    if(esc==='geral' && modo==='cartela') t='Promoção MASTER: cada participação vale um bilhete. Quem participa mais dias, mais chance. Ideal pra Dia dos Pais, Vai de Bike, etc.';
+    else if(esc==='programa' && modo==='igualdade') t='Promoção diária de programa: todo ouvinte daquele programa tem a mesma chance no dia.';
+    else if(esc==='programa' && modo==='cartela') t='Promoção de programa premiando quem participa mais dias naquele programa.';
+    else t='Promoção geral com chance igual pra todos, independente de quanto participaram.';
+    $('promoDica').textContent=t;
+  }
+  $('pEscopo').addEventListener('change',atualizarDica);
+  $('pModo').addEventListener('change',atualizarDica);
+  atualizarDica();
+
+  $('createPromo').addEventListener('click', async function(){
+    var body={
+      nome:$('pNome').value.trim(), premio:$('pPremio').value.trim(),
+      escopo:$('pEscopo').value, programa:$('pPrograma').value,
+      modo:$('pModo').value, carencia_dias:parseInt($('pCar').value,10)||30, teto_diario:parseInt($('pTeto').value,10)||1
+    };
+    if(!body.nome){ setMsg('promoMsg','Dê um nome à promoção.',false); return; }
+    try{
+      await api('/api/admin/promocao',{method:'POST',headers:H(),body:JSON.stringify(body)});
+      setMsg('promoMsg','Promoção criada ✓',true);
+      $('pNome').value=''; $('pPremio').value='';
+      await carregarPromos();
+    }catch(e){ setMsg('promoMsg','Erro: '+e.message,false); }
+  });
+
+  async function carregarPromos(){
+    var d = await api('/api/admin/promocoes',{headers:H()});
+    var b=$('promoBody'); b.innerHTML='';
+    (d.promocoes||[]).forEach(function(p){
+      var tr=document.createElement('tr');
+      var aberta = p.status==='aberta';
+      tr.innerHTML =
+        '<td>'+esc(p.nome)+(p.premio?'<br><span style="color:var(--muted);font-size:12px">'+esc(p.premio)+'</span>':'')+'</td>'+
+        '<td>'+(p.escopo==='programa'?esc(p.programa||'programa'):'Geral')+'</td>'+
+        '<td>'+(p.modo==='cartela'?'Cartela':'Igualdade')+'</td>'+
+        '<td>'+p.participacoes+'</td>'+
+        '<td><span class="pill '+(aberta?'on':'off')+'">'+(aberta?'aberta':'encerrada')+'</span></td>'+
+        '<td></td>';
+      var btn=document.createElement('button');
+      btn.className='btn ghost sm'; btn.textContent=aberta?'Encerrar':'Reabrir';
+      btn.addEventListener('click', async function(){
+        try{ await api('/api/admin/promocao/status',{method:'POST',headers:H(),body:JSON.stringify({id:p.id,status:aberta?'encerrada':'aberta'})}); await carregarPromos(); }
+        catch(e){ alert(e.message); }
+      });
+      tr.lastChild.appendChild(btn);
+      b.appendChild(tr);
+    });
+  }
+
+  // ============ SORTEADOS ============
+  async function carregarSorteados(){
+    var d = await api('/api/admin/historico',{headers:H()});
+    var b=$('sortBody'); b.innerHTML='';
+    if(!(d.historico||[]).length){ b.innerHTML='<tr><td colspan="4" style="color:var(--muted)">Nenhum sorteio ainda.</td></tr>'; return; }
+    d.historico.forEach(function(s){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+fmt(s.criado_em)+'</td><td>'+esc(s.promocao)+'</td>'+
+        '<td style="color:var(--signal)">'+esc(s.ganhadores||'—')+'</td>'+
+        '<td>'+s.participantes+' part.</td>';
+      b.appendChild(tr);
+    });
+  }
+  $('reloadSort').addEventListener('click',carregarSorteados);
+
+  function esc(s){return String(s||'').replace(/[&<>]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
+  function fmt(s){ if(!s) return '—'; var d=new Date(s.replace(' ','T')+'Z'); return isNaN(d)?s:d.toLocaleString('pt-BR'); }
+})();
+</script>
+</body>
+</html>
