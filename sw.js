@@ -1,40 +1,43 @@
-/* Nova FM 87,9 — Service Worker (PWA) — v3 network-first */
-const CACHE = 'novafm-v4';
-const ASSETS = ['/', '/manifest.webmanifest',
-  '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png'];
+/* Nova FM 87,5 — Service Worker (app instalável)
+   Página e dados: rede primeiro (sempre o conteúdo novo), com cópia para abrir offline.
+   Imagens, CSS e JS: cache primeiro, atualizando em segundo plano.
+   Ao mudar arquivos em /assets, troque o ?v= no index.html e a versão abaixo. */
+const VERSAO = 'novafm-v7';
+const BASICOS = ['/', '/assets/site.css?v=20261009d', '/assets/app.js?v=20261009d', '/img/logo-mark.webp', '/img/logo-nova.webp',
+  '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(VERSAO).then((c) => c.addAll(BASICOS)).catch(() => {}).then(() => self.skipWaiting()));
 });
-self.addEventListener('activate', e => {
+
+self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys()
-    .then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then((ks) => Promise.all(ks.filter((k) => k !== VERSAO).map((k) => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
-self.addEventListener('fetch', e => {
+
+function redePrimeiro(req, chave) {
+  return fetch(req).then((res) => {
+    if (res.ok) { const copia = res.clone(); caches.open(VERSAO).then((c) => c.put(chave || req, copia)); }
+    return res;
+  }).catch(() => caches.match(chave || req));
+}
+
+self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const u = new URL(req.url);
-  if (u.origin !== location.origin) return;                 // nunca o stream/IG/etc de outro domínio
-  if (u.pathname.startsWith('/api/') || u.pathname.startsWith('/content/') || u.pathname.includes('/radio')) return; // ao vivo nunca cacheia
+  if (u.origin !== location.origin) return;               // stream, Instagram, promoções: nunca passam pelo cache
+  if (u.pathname.startsWith('/api/') || u.pathname.startsWith('/admin')) return; // ao vivo e painel: sempre da rede
 
-  // Navegação (abrir a página/app) = network-first: sempre o conteúdo novo, com fallback offline
-  if (req.mode === 'navigate') {
-    e.respondWith(
-      fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put('/', copy));
-        return res;
-      }).catch(() => caches.match('/'))
-    );
-    return;
-  }
-  // Demais arquivos (ícones, etc) = cache-first com atualização em segundo plano
-  e.respondWith(
-    caches.match(req).then(hit => hit || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(req, copy));
+  if (req.mode === 'navigate') { e.respondWith(redePrimeiro(req, '/')); return; }
+  if (u.pathname.startsWith('/content/')) { e.respondWith(redePrimeiro(req, u.pathname)); return; }
+
+  e.respondWith(caches.match(req).then((salvo) => {
+    const rede = fetch(req).then((res) => {
+      if (res.ok) { const copia = res.clone(); caches.open(VERSAO).then((c) => c.put(req, copia)); }
       return res;
-    }))
-  );
+    }).catch(() => salvo);
+    return salvo || rede;
+  }));
 });

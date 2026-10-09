@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nova FM 87,9 — Você ouve, você gosta! | São Bento do Sul</title>
-<meta name="description" content="Ouça a Nova FM 87,9 ao vivo: a rádio de São Bento do Sul, Rio Negrinho e Campo Alegre. Programação, locutores, promoções e notícias da região.">
+<title>Nova FM 87,5 — Você ouve, você gosta! | São Bento do Sul</title>
+<meta name="description" content="Ouça a Nova FM 87,5 ao vivo: a rádio de São Bento do Sul, Rio Negrinho e Campo Alegre. Programação, locutores, promoções e notícias da região.">
 <meta name="theme-color" content="#081634">
 <link rel="canonical" href="https://novafmsbs.com.br/">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -13,12 +13,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nova FM 87,9">
+<meta name="apple-mobile-web-app-title" content="Nova FM 87,5">
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Nova FM 87,9">
+<meta property="og:site_name" content="Nova FM 87,5">
 <meta property="og:locale" content="pt_BR">
-<meta property="og:title" content="Nova FM 87,9 — Você ouve, você gosta!">
+<meta property="og:title" content="Nova FM 87,5 — Você ouve, você gosta!">
 <meta property="og:description" content="A rádio de São Bento do Sul, Rio Negrinho e Campo Alegre. Ouça ao vivo agora.">
 <meta property="og:url" content="https://novafmsbs.com.br/">
 <meta property="og:image" content="https://novafmsbs.com.br/img/og-image.jpg">
@@ -30,13 +30,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/img/logo-nova.webp" fetchpriority="high">
-<link rel="stylesheet" href="/assets/site.css?v=20261009">
+<link rel="stylesheet" href="/assets/site.css?v=20261009d">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "RadioStation",
-  "name": "Nova FM 87,9",
+  "name": "Nova FM 87,5",
   "slogan": "Você ouve, você gosta!",
   "url": "https://novafmsbs.com.br/",
   "logo": "https://novafmsbs.com.br/icons/icon-512.png",
@@ -44,7 +44,7 @@
   "telephone": "+55 47 3633-5401",
   "address": { "@type": "PostalAddress", "addressLocality": "São Bento do Sul", "addressRegion": "SC", "addressCountry": "BR" },
   "areaServed": ["São Bento do Sul", "Rio Negrinho", "Campo Alegre"],
-  "sameAs": ["https://instagram.com/novafmsbs"]
+  "sameAs": ["https://instagram.com/novafm_sbs"]
 }
 </script>
 </head>
@@ -71,13 +71,14 @@
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></symbol>
 </svg>
 
+<div class="barra-status" aria-hidden="true"></div>
 <div class="campanha" id="campanha" hidden></div>
 
 <header class="topo">
   <div class="wrap topo-in">
-    <a class="marca" href="#inicio" aria-label="Nova FM 87,9 — início">
+    <a class="marca" href="#inicio" aria-label="Nova FM 87,5 — início">
       <img src="/img/logo-mark.webp" width="44" height="44" alt="">
-      <span><b>Nova FM 87,9</b><small>São Bento do Sul · SC</small></span>
+      <span><b>Nova FM 87,5</b><small>São Bento do Sul · SC</small></span>
     </a>
     <nav class="menu" id="menu" aria-label="Seções">
       <a href="#programacao">Programação</a>
@@ -103,7 +104,7 @@
     <div class="wrap">
       <div class="hero-marca">
         <span class="selo"><i class="led"></i>Ao vivo de São Bento do Sul · SC</span>
-        <h1><img src="/img/logo-nova.webp" width="680" height="399" alt="Nova FM 87,9" fetchpriority="high"></h1>
+        <h1><img src="/img/logo-nova.webp" width="760" height="474" alt="Nova FM 87,5" fetchpriority="high"></h1>
         <p class="slogan">Você ouve, <em>você gosta!</em></p>
       </div>
 
@@ -116,7 +117,7 @@
         </div>
         <div class="tocando">
           <div class="rotulo"><span class="ao-vivo"><i></i>AO VIVO</span><span data-np-tag>Tocando agora</span></div>
-          <p class="np-titulo" data-np-titulo>Nova FM 87,9</p>
+          <p class="np-titulo" data-np-titulo>Nova FM 87,5</p>
           <p class="np-artista" data-np-artista>Você ouve, você gosta!</p>
           <div class="eq" id="eq" aria-hidden="true"></div>
           <div class="acoes">
@@ -133,7 +134,7 @@
             <div id="noArAvatar"></div>
             <div class="no-ar-info">
               <span class="kicker">No ar agora</span>
-              <b id="noArPrograma">Nova FM 87,9</b>
+              <b id="noArPrograma">Nova FM 87,5</b>
               <span id="noArApresentador">Programação musical</span>
             </div>
           </div>
@@ -198,8 +199,10 @@
   <!-- REDES SOCIAIS -->
   <section id="redes">
     <div class="wrap">
-      <div class="sec-topo"><div><span class="kicker">Redes sociais</span><h2>Siga a <em>Nova</em></h2></div><div class="redes" id="redesLista"></div></div>
-      <div id="feed" class="feed"></div>
+      <div class="sec-topo"><div><span class="kicker">Redes sociais</span><h2>Siga a <em>Nova</em></h2></div></div>
+      <div class="redes" id="redesLista">
+        <a class="rede instagram" href="https://instagram.com/novafm_sbs" target="_blank" rel="noopener"><span class="ri"><svg><use href="#i-ig"/></svg></span><span class="rt"><small>Instagram</small><b>@novafm_sbs</b><span>Bastidores, promoções, sorteios e os locutores no dia a dia.</span></span><span class="btn btn-primario">Seguir<svg><use href="#i-arrow"/></svg></span></a>
+      </div>
     </div>
   </section>
 
@@ -225,14 +228,14 @@
 <footer class="rodape">
   <div class="wrap rodape-in">
     <div class="rodape-marca">
-      <a class="marca" href="#inicio"><img src="/img/logo-mark.webp" width="44" height="44" alt="" loading="lazy"><span><b>Nova FM 87,9</b><small>São Bento do Sul · SC</small></span></a>
+      <a class="marca" href="#inicio"><img src="/img/logo-mark.webp" width="44" height="44" alt="" loading="lazy"><span><b>Nova FM 87,5</b><small>São Bento do Sul · SC</small></span></a>
       <p>A rádio de São Bento do Sul, Rio Negrinho e Campo Alegre. Você ouve, você gosta!</p>
     </div>
     <div><h4>Navegar</h4><a href="#programacao">Programação</a><a href="#locutores">Locutores</a><a href="#noticias">Notícias</a><a href="#apoiadores">Apoiadores</a></div>
-    <div><h4>Contato</h4><a href="https://wa.me/554736335401" target="_blank" rel="noopener">WhatsApp (47) 3633-5401</a><a href="https://instagram.com/novafmsbs" target="_blank" rel="noopener">@novafmsbs</a><a href="https://portalnovafmsbs.com.br" target="_blank" rel="noopener">Portal de notícias</a></div>
-    <div><h4>App</h4><p class="rodape-app">Instale a Nova no celular e ouça com um toque.</p><button class="btn btn-leve" type="button" data-instalar><svg><use href="#i-down"/></svg>Instalar o app</button></div>
+    <div><h4>Contato</h4><a href="https://wa.me/554736335401" target="_blank" rel="noopener">WhatsApp (47) 3633-5401</a><a href="https://instagram.com/novafm_sbs" target="_blank" rel="noopener">@novafm_sbs</a><a href="https://portalnovafmsbs.com.br" target="_blank" rel="noopener">Portal de notícias</a></div>
+    <div id="rodapeApp"><h4>App</h4><p class="rodape-app">Instale a Nova no celular e ouça com um toque.</p><button class="btn btn-leve" type="button" data-instalar><svg><use href="#i-down"/></svg>Instalar o app</button></div>
   </div>
-  <div class="wrap rodape-fim"><span>© <span id="ano">2026</span> Nova FM 87,9 — São Bento do Sul, SC</span><span>Você ouve, você gosta!</span></div>
+  <div class="wrap rodape-fim"><span>© <span id="ano">2026</span> Nova FM 87,5 — São Bento do Sul, SC</span><span>Você ouve, você gosta!</span></div>
 </footer>
 
 <!-- MINI PLAYER -->
@@ -240,7 +243,7 @@
   <div class="wrap mini-in">
     <div class="mini-disco" aria-hidden="true"></div>
     <div class="mini-meta">
-      <b data-np-titulo>Nova FM 87,9</b>
+      <b data-np-titulo>Nova FM 87,5</b>
       <span><i class="ao-vivo"><i></i>AO VIVO</i><span data-np-artista>Você ouve, você gosta!</span></span>
     </div>
     <a class="btn-icone mini-wa" href="https://wa.me/554736335401" target="_blank" rel="noopener" aria-label="Falar com a Nova no WhatsApp" data-wa-link><svg><use href="#i-wa"/></svg></a>
@@ -273,6 +276,6 @@
 
 <audio id="stream" preload="none"></audio>
 
-<script src="/assets/app.js?v=20261009" defer></script>
+<script src="/assets/app.js?v=20261009d" defer></script>
 </body>
 </html>

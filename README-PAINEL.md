@@ -1,4 +1,47 @@
-# Painel da Nova FM — como instalar e usar
+# Site da Nova FM 87,5 — guia rápido
+
+## O que dá para editar pelo painel (`novafmsbs.com.br/admin`)
+
+| Seção do painel | O que muda no site |
+|---|---|
+| **Campanha / Banner** | Faixa de aviso no topo (liga/desliga, texto, botão, cor, data para sumir) |
+| **Programação** | Grade de Seg–Sex, Sábado e Domingo. O site destaca sozinho o que está **no ar**, mostra "A seguir" e monta os horários no card de cada locutor |
+| **Locutores** | Nome, apelido, foto, cor, Instagram e "Mostrar na seção Locutores" (liga/desliga o card sem apagar o cadastro). Sem foto aparece a logo da Nova |
+| **Apoiadores** | Nome, logo (opcional) e link (opcional) da faixa de apoiadores |
+| **Contato e redes** | WhatsApp do estúdio, endereço do portal de notícias e redes sociais (Instagram, Facebook, YouTube, TikTok) — cada rede vira um card "Seguir" no site |
+
+> Dica: em **Programação → Apresentadores**, escreva o nome **igual** ao cadastrado em Locutores
+> para a foto aparecer na grade e o selo "No ar" acender no card do locutor.
+
+## Como o site funciona
+
+```
+index.html            página única (player, programação, locutores, notícias, redes, apoiadores)
+assets/site.css       visual
+assets/app.js         player, tocando agora, programação, promoções, notícias, apoiadores
+content/*.json        dados editados pelo painel
+img/                  logo, imagem de compartilhamento (og-image) e fotos dos locutores
+functions/api/        nowplaying.js (música tocando) e noticias.js (manchetes do portal)
+promocoes.html        só redireciona para /#promocoes (links e QR codes antigos continuam valendo)
+404.html, robots.txt, sitemap.xml, _headers, sw.js, manifest.webmanifest
+```
+
+- **Tocando agora:** `/api/nowplaying` lê o Icecast e, se ele falhar, lê o título direto do stream.
+  Títulos com "Nova FM" (vinhetas) fazem o site mostrar o programa do horário.
+- **Notícias:** `/api/noticias` busca as últimas manchetes do feed do portal (`/feed/`), com cache de 10 min.
+- **Promoções:** abrem numa janela dentro do site e usam o Worker `novafm-sorteador`
+  (`/api/agora`, `/api/promocoes`, `/api/participar`). Quando há promoção ativa, o botão
+  Promoções ganha uma bolinha vermelha e aparece um aviso discreto (uma vez por dia).
+- **Endereço direto das promoções:** `novafmsbs.com.br/#promocoes` (bom para QR code e Instagram).
+
+## Ao mudar CSS ou JS à mão
+
+Troque a versão `?v=...` nas duas linhas do `index.html` **e** em `sw.js` (lista `BASICOS`),
+e mude `VERSAO` em `sw.js` (ex.: `novafm-v6`). Sem isso, quem tem o app instalado continua vendo a versão antiga.
+
+---
+
+# Instalação inicial do painel (já feita — referência)
 
 Este pacote transforma o site em um projeto editável por um **painel** em `novafmsbs.com.br/admin`,
 com login por GitHub. A primeira coisa editável é o **banner de campanha** no topo do site
