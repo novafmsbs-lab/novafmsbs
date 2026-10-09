@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: novafmsbs-lab/novafmsbs   # usuário/repositório — crie o repo com o nome "novafmsbs"
+  repo: novafmsbs-lab/novafmsbs   # usuário/repositório
   branch: main
   base_url: https://sveltia-cms-auth.novafmsbs.workers.dev
 
@@ -22,7 +22,7 @@ collections:
           - { label: "Ativar banner no site", name: "ativo", widget: "boolean", default: false }
           - { label: "Texto", name: "texto", widget: "string", hint: "Ex.: Vai de Bike Nova — participe e concorra a prêmios!" }
           - { label: "Texto do botão (opcional)", name: "cta_texto", widget: "string", required: false }
-          - { label: "Link do botão (opcional)", name: "cta_link", widget: "string", required: false, hint: "Link do WhatsApp, do regulamento, de uma página, etc." }
+          - { label: "Link do botão (opcional)", name: "cta_link", widget: "string", required: false, hint: "Começando com https:// — ex.: https://wa.me/554736335401" }
           - label: "Cor do banner"
             name: "cor"
             widget: "select"
@@ -34,10 +34,85 @@ collections:
               - { label: "Escuro", value: "escuro" }
           - { label: "Sumir automaticamente em (opcional)", name: "fim", widget: "datetime", required: false, hint: "Deixe vazio para o banner ficar até você desligar." }
 
+  - name: programacao
+    label: "Programação"
+    description: "Grade de programas. O site destaca sozinho o que está no ar e mostra os horários no card de cada locutor."
+    files:
+      - name: grade
+        label: "Grade da programação"
+        file: "content/programacao.json"
+        fields:
+          - label: "Segunda a sexta"
+            name: "semana"
+            widget: "list"
+            label_singular: "Programa"
+            summary: "{{fields.inicio}}–{{fields.fim}} · {{fields.programa}}"
+            fields:
+              - { label: "Começa", name: "inicio", widget: "string", hint: "Formato HH:MM — ex.: 08:00", pattern: ['^([01]\d|2[0-3]):[0-5]\d$', "Use o formato HH:MM, ex.: 08:00"] }
+              - { label: "Termina", name: "fim", widget: "string", hint: "Formato HH:MM — use 24:00 para meia-noite", pattern: ['^([01]\d|2[0-4]):[0-5]\d$', "Use o formato HH:MM, ex.: 10:00 ou 24:00"] }
+              - { label: "Nome do programa", name: "programa", widget: "string" }
+              - { label: "Descrição curta", name: "descricao", widget: "string", required: false }
+              - { label: "Apresentadores", name: "apresentadores", widget: "list", required: false, field: { label: "Nome", name: "nome", widget: "string" }, hint: "Escreva o nome igual ao cadastrado em Locutores, para aparecer a foto. Deixe vazio em programas só musicais." }
+          - label: "Sábado"
+            name: "sabado"
+            widget: "list"
+            label_singular: "Programa"
+            summary: "{{fields.inicio}}–{{fields.fim}} · {{fields.programa}}"
+            fields:
+              - { label: "Começa", name: "inicio", widget: "string", hint: "Formato HH:MM — ex.: 08:00", pattern: ['^([01]\d|2[0-3]):[0-5]\d$', "Use o formato HH:MM, ex.: 08:00"] }
+              - { label: "Termina", name: "fim", widget: "string", hint: "Formato HH:MM — use 24:00 para meia-noite", pattern: ['^([01]\d|2[0-4]):[0-5]\d$', "Use o formato HH:MM, ex.: 10:00 ou 24:00"] }
+              - { label: "Nome do programa", name: "programa", widget: "string" }
+              - { label: "Descrição curta", name: "descricao", widget: "string", required: false }
+              - { label: "Apresentadores", name: "apresentadores", widget: "list", required: false, field: { label: "Nome", name: "nome", widget: "string" }, hint: "Escreva o nome igual ao cadastrado em Locutores, para aparecer a foto. Deixe vazio em programas só musicais." }
+          - label: "Domingo"
+            name: "domingo"
+            widget: "list"
+            label_singular: "Programa"
+            summary: "{{fields.inicio}}–{{fields.fim}} · {{fields.programa}}"
+            fields:
+              - { label: "Começa", name: "inicio", widget: "string", hint: "Formato HH:MM — ex.: 08:00", pattern: ['^([01]\d|2[0-3]):[0-5]\d$', "Use o formato HH:MM, ex.: 08:00"] }
+              - { label: "Termina", name: "fim", widget: "string", hint: "Formato HH:MM — use 24:00 para meia-noite", pattern: ['^([01]\d|2[0-4]):[0-5]\d$', "Use o formato HH:MM, ex.: 10:00 ou 24:00"] }
+              - { label: "Nome do programa", name: "programa", widget: "string" }
+              - { label: "Descrição curta", name: "descricao", widget: "string", required: false }
+              - { label: "Apresentadores", name: "apresentadores", widget: "list", required: false, field: { label: "Nome", name: "nome", widget: "string" }, hint: "Escreva o nome igual ao cadastrado em Locutores, para aparecer a foto. Deixe vazio em programas só musicais." }
+
+  - name: locutores
+    label: "Locutores"
+    label_singular: "Locutor"
+    description: "Equipe que aparece no site. Os programas de cada um vêm automaticamente da Programação."
+    files:
+      - name: equipe
+        label: "Equipe de locutores"
+        file: "content/locutores.json"
+        fields:
+          - label: "Locutores"
+            name: "itens"
+            widget: "list"
+            label_singular: "Locutor"
+            summary: "{{fields.nome}}"
+            fields:
+              - { label: "Nome", name: "nome", widget: "string" }
+              - { label: "Mostrar na seção Locutores", name: "mostrar", widget: "boolean", default: true, hint: "Desligue para esconder o card sem apagar o cadastro (a foto continua aparecendo na grade)." }
+              - { label: "Apelido (opcional)", name: "apelido", widget: "string", required: false, hint: "Ex.: O Panda" }
+              - { label: "Foto (opcional)", name: "foto", widget: "image", required: false, hint: "Foto quadrada, rosto centralizado, pelo menos 300×300. Sem foto, aparecem as iniciais." }
+              - label: "Cor de destaque"
+                name: "cor"
+                widget: "select"
+                default: "laranja"
+                options:
+                  - { label: "Laranja", value: "laranja" }
+                  - { label: "Rosa", value: "rosa" }
+                  - { label: "Vermelho", value: "vermelho" }
+                  - { label: "Verde", value: "verde" }
+                  - { label: "Azul", value: "azul" }
+                  - { label: "Roxo", value: "roxo" }
+                  - { label: "Amarelo", value: "amarelo" }
+              - { label: "Instagram (opcional)", name: "instagram", widget: "string", required: false, hint: "Só o usuário, sem @ — ex.: silveirajuniorlocutor" }
+
   - name: apoiadores
     label: "Apoiadores"
     label_singular: "Apoiador"
-    description: "Faixa de apoiadores que passa no site (nome e, opcionalmente, logo e link)."
+    description: "Faixa de apoiadores do site (nome e, opcionalmente, logo e link)."
     files:
       - name: lista
         label: "Lista de apoiadores"
@@ -50,5 +125,32 @@ collections:
             summary: "{{fields.nome}}"
             fields:
               - { label: "Nome", name: "nome", widget: "string" }
-              - { label: "Logo (opcional)", name: "logo", widget: "image", required: false, hint: "PNG com fundo transparente, altura ~240px" }
-              - { label: "Link (opcional)", name: "link", widget: "string", required: false, hint: "Site ou Instagram do apoiador" }
+              - { label: "Logo (opcional)", name: "logo", widget: "image", required: false, hint: "PNG ou WebP, de preferência quadrado. Sem logo, aparecem as iniciais coloridas." }
+              - { label: "Link (opcional)", name: "link", widget: "string", required: false, hint: "Site ou Instagram do apoiador, começando com https://" }
+
+  - name: site
+    label: "Contato e redes"
+    description: "WhatsApp do estúdio, portal de notícias e redes sociais."
+    files:
+      - name: config
+        label: "Contato e redes sociais"
+        file: "content/site.json"
+        fields:
+          - { label: "WhatsApp do estúdio", name: "whatsapp", widget: "string", hint: "Só números, com 55 e DDD — ex.: 554736335401", pattern: ['^\d{12,13}$', "Use só números, com 55 + DDD + número"] }
+          - { label: "Endereço do portal de notícias", name: "portal_noticias", widget: "string", hint: "Ex.: https://portalnovafmsbs.com.br" }
+          - label: "Redes sociais"
+            name: "redes"
+            widget: "list"
+            label_singular: "Rede"
+            summary: "{{fields.rede}} · @{{fields.usuario}}"
+            fields:
+              - label: "Rede"
+                name: "rede"
+                widget: "select"
+                options:
+                  - { label: "Instagram", value: "instagram" }
+                  - { label: "Facebook", value: "facebook" }
+                  - { label: "YouTube", value: "youtube" }
+                  - { label: "TikTok", value: "tiktok" }
+              - { label: "Usuário (sem @)", name: "usuario", widget: "string" }
+              - { label: "Link (opcional)", name: "link", widget: "string", required: false, hint: "Se vazio, o site monta o link pelo usuário." }

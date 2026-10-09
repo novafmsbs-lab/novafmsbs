@@ -1,0 +1,36 @@
+{
+  "semana": [
+    { "inicio": "00:00", "fim": "05:00", "programa": "Madrugada da Nova", "descricao": "Música sem parar pela madrugada", "apresentadores": [] },
+    { "inicio": "05:00", "fim": "07:00", "programa": "Amanhecendo com a Nova", "descricao": "O começo do dia com a Nova", "apresentadores": [] },
+    { "inicio": "07:00", "fim": "08:00", "programa": "Jornal da Nova", "descricao": "Informação rápida e do seu interesse", "apresentadores": ["Silveira Junior"] },
+    { "inicio": "08:00", "fim": "10:00", "programa": "Manhã da Nova", "descricao": "Pra começar o dia", "apresentadores": ["Silveira Junior"] },
+    { "inicio": "10:00", "fim": "12:00", "programa": "Papo de Comadre", "descricao": "Conversa e variedades", "apresentadores": ["Claudia Lima", "Dayane Mendonça"] },
+    { "inicio": "12:00", "fim": "13:00", "programa": "Almoçando com a Nova", "descricao": "Os hits na hora do almoço", "apresentadores": [] },
+    { "inicio": "13:00", "fim": "16:00", "programa": "Salada Mista", "descricao": "De tudo um pouco", "apresentadores": ["Silveira Junior"] },
+    { "inicio": "16:00", "fim": "19:00", "programa": "Boteco da Nova", "descricao": "Pra fechar a tarde", "apresentadores": ["Magnus Cowboy"] },
+    { "inicio": "19:00", "fim": "21:00", "programa": "Bailão da Nova", "descricao": "Os melhores bailões para agitar sua noite", "apresentadores": ["Maycon Pierre"] },
+    { "inicio": "21:00", "fim": "22:00", "programa": "A Voz do Brasil", "descricao": "Rede Nacional de Rádio", "apresentadores": [] },
+    { "inicio": "22:00", "fim": "24:00", "programa": "Toca Mais", "descricao": "Música sem parar até a madrugada", "apresentadores": [] }
+  ],
+  "sabado": [
+    { "inicio": "00:00", "fim": "05:00", "programa": "Madrugada da Nova", "descricao": "Música sem parar pela madrugada", "apresentadores": [] },
+    { "inicio": "05:00", "fim": "07:00", "programa": "Amanhecendo com a Nova", "descricao": "O começo do dia com a Nova", "apresentadores": [] },
+    { "inicio": "07:00", "fim": "08:00", "programa": "Jornal da Nova", "descricao": "Informação rápida e do seu interesse", "apresentadores": ["Leonel Mendonça", "Silveira Junior"] },
+    { "inicio": "08:00", "fim": "08:20", "programa": "Tribuna Sindical", "descricao": "Programa independente", "apresentadores": [] },
+    { "inicio": "08:20", "fim": "12:00", "programa": "Manhã Extra da Nova", "descricao": "O sábado começa com a Nova", "apresentadores": [] },
+    { "inicio": "12:00", "fim": "13:00", "programa": "Almoçando com a Nova", "descricao": "Os hits na hora do almoço", "apresentadores": [] },
+    { "inicio": "13:00", "fim": "16:00", "programa": "Salada Mista", "descricao": "De tudo um pouco", "apresentadores": ["Silveira Junior"] },
+    { "inicio": "16:00", "fim": "18:00", "programa": "Panelão da Nova", "descricao": "Humor e música", "apresentadores": [] },
+    { "inicio": "18:00", "fim": "20:00", "programa": "Boteco da Nova", "descricao": "Pra fechar a tarde", "apresentadores": ["Magnus Cowboy"] },
+    { "inicio": "20:00", "fim": "24:00", "programa": "Toca Mais", "descricao": "Música sem parar até a madrugada", "apresentadores": [] }
+  ],
+  "domingo": [
+    { "inicio": "00:00", "fim": "05:00", "programa": "Madrugada da Nova", "descricao": "Música sem parar pela madrugada", "apresentadores": [] },
+    { "inicio": "05:00", "fim": "07:00", "programa": "Amanhecendo com a Nova", "descricao": "O começo do dia com a Nova", "apresentadores": [] },
+    { "inicio": "07:00", "fim": "08:00", "programa": "Jornal da Nova", "descricao": "Informação rápida e do seu interesse", "apresentadores": ["Leonel Mendonça", "Silveira Junior"] },
+    { "inicio": "08:00", "fim": "12:00", "programa": "Bolicho da Nova", "descricao": "Programa gaúcho e pedidos dos ouvintes", "apresentadores": [] },
+    { "inicio": "12:00", "fim": "15:00", "programa": "Show de Bandas", "descricao": "As bandas que você curte", "apresentadores": [] },
+    { "inicio": "15:00", "fim": "18:00", "programa": "Tarde da Nova", "descricao": "A trilha da sua tarde de domingo", "apresentadores": [] },
+    { "inicio": "18:00", "fim": "24:00", "programa": "Toca Mais", "descricao": "Música sem parar até a madrugada", "apresentadores": [] }
+  ]
+}
