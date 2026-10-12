@@ -594,7 +594,7 @@
     if (!promo.lista.length) {
       const prog = promo.programa;
       const texto = prog ? 'Nenhuma promoção aberta no ' + esc(prog) + ' agora. Fica ligado na Nova: quando abrir, ela aparece aqui!'
-        : 'As promoções acontecem durante a programação ao vivo, das 8h às 22h. Volte mais tarde!';
+        : 'As promoções acontecem durante a programação ao vivo, das 8h às 21h. Volte mais tarde!';
       telaEstado('', 'i-gift', 'Nada rolando agora', texto, tocando ? '' : '<button class="btn btn-primario" type="button" data-play><svg class="ic-play"><use href="#i-play"/></svg><svg class="ic-pause"><use href="#i-pause"/></svg>Ouvir a Nova enquanto isso</button>');
       return;
     }
