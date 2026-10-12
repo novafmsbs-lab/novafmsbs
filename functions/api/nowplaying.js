@@ -1,11 +1,14 @@
 /* Cloudflare Pages Function — "tocando agora" da Nova FM. Rota: /api/nowplaying
-   1º tenta o status-json do Icecast; se falhar, lê o título embutido no próprio stream (ICY).
+   1º lê a página de status do Icecast (música atual + histórico + ouvintes, numa requisição só);
+   se falhar, lê o título embutido no próprio stream (ICY).
+   O playout manda "Artista - Música" e logo depois "Album: ...": quando o atual for um "Album:",
+   usamos a última música de verdade do histórico.
    Título vazio = vinheta/comercial: o site mostra o programa do horário. */
 
 const STREAM = "https://radio.novafmsbs.com.br/stream";
-const STATUS = "https://radio.novafmsbs.com.br/status-json.xsl";
-const MOUNT = "/stream";
-const ESTACAO = /nova\s*fm/i; // títulos com o nome da rádio são tratados como vinheta
+const STATUS = "https://radio.novafmsbs.com.br/status.xsl";
+const ESTACAO = /nova\s*fm/i;  // títulos com o nome da rádio são tratados como vinheta
+const ALBUM = /^\s*album\s*:/i; // linha de álbum que o playout manda por cima do título
 
 const HEADERS = {
   "content-type": "application/json; charset=utf-8",
@@ -13,19 +16,31 @@ const HEADERS = {
   "cache-control": "public, max-age=10",
 };
 
-async function doStatus() {
-  const r = await fetch(STATUS, { cf: { cacheTtl: 5 } });
-  if (!r.ok) throw new Error("status " + r.status);
-  const d = await r.json();
-  let src = d && d.icestats && d.icestats.source;
-  if (Array.isArray(src)) src = src.find((s) => String(s.listenurl || "").endsWith(MOUNT)) || src[0];
-  if (!src) throw new Error("sem source");
-  return { raw: src.title || src.yp_currently_playing || "", ouvintes: src.listeners ?? null };
-}
-
+// Metadados chegam às vezes em latin-1, às vezes em UTF-8: tenta UTF-8 e cai para latin-1.
 function decodifica(bytes) {
   try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
-  catch (e) { let s = ""; for (const b of bytes) s += String.fromCharCode(b); return s; } // latin-1
+  catch (e) { let s = ""; for (const b of bytes) s += String.fromCharCode(b); return s; }
+}
+function deHtml(s) {
+  return s.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").trim();
+}
+const util = (t) => !!t && !ALBUM.test(t);
+
+async function doStatusHtml() {
+  const r = await fetch(STATUS, { cf: { cacheTtl: 5 } });
+  if (!r.ok) throw new Error("status " + r.status);
+  const bytes = new Uint8Array(await r.arrayBuffer());
+  // A página é UTF-8, mas os títulos podem vir em latin-1: lê byte a byte e corrige título por título.
+  let html = ""; for (const b of bytes) html += String.fromCharCode(b);
+  const conserta = (s) => decodifica(Uint8Array.from(s, (c) => c.charCodeAt(0) & 0xff));
+  const atual = (html.match(/Currently playing:<\/td>\s*<td[^>]*>([^<]*)<\/td>/i) || [])[1];
+  const ouvintes = (html.match(/Listeners \(current\):<\/td>\s*<td[^>]*>(\d+)<\/td>/i) || [])[1];
+  const bloco = (html.match(/<h4>Playlist<\/h4>([\s\S]*?)<\/table>/i) || [])[1] || "";
+  const historico = [...bloco.matchAll(/<tr>\s*(?:<td>[^<]*<\/td>\s*){3}<td>([^<]*)<\/td>\s*<\/tr>/g)].map((m) => deHtml(conserta(m[1])));
+  let raw = atual ? deHtml(conserta(atual)) : "";
+  if (!util(raw)) raw = [...historico].reverse().find(util) || ""; // o mais recente fica no fim da tabela
+  return { raw, ouvintes: ouvintes ? +ouvintes : null };
 }
 
 async function doStream() {
@@ -61,9 +76,10 @@ async function doStream() {
 function separa(raw) {
   let titulo = String(raw || "").replace(/\0/g, "").trim();
   let artista = "";
-  if (!titulo || ESTACAO.test(titulo)) return { artist: "", title: "" };
+  if (!util(titulo) || ESTACAO.test(titulo)) return { artist: "", title: "" };
   const i = titulo.indexOf(" - ");
   if (i > -1) { artista = titulo.slice(0, i).trim(); titulo = titulo.slice(i + 3).trim(); }
+  artista = artista.split("/").map((a) => a.trim()).filter(Boolean).join(", "); // "A/B" -> "A, B"
   return { artist: artista, title: titulo };
 }
 
@@ -74,12 +90,15 @@ export async function onRequest(ctx) {
   if (salvo) return salvo;
 
   let info = null, fonte = "";
-  try { info = await doStatus(); fonte = "icecast"; } catch (e) { /* status-json quebrado: tenta o stream */ }
-  if (!info || !info.raw) { try { info = await doStream(); fonte = "icy"; } catch (e) { info = info || null; } }
+  try { info = await doStatusHtml(); fonte = "icecast"; } catch (e) { /* página de status fora: tenta o stream */ }
+  if (!info || !info.raw) {
+    try { const icy = await doStream(); if (util(icy.raw)) { info = { raw: icy.raw, ouvintes: info && info.ouvintes }; fonte = "icy"; } }
+    catch (e) { /* sem título: o site mostra o programa do horário */ }
+  }
 
   const corpo = {
     now_playing: { song: separa(info && info.raw) },
-    listeners: { current: (info && info.ouvintes) || null },
+    listeners: { current: (info && info.ouvintes) ?? null },
     source: fonte || "indisponivel",
     updated: new Date().toISOString(),
   };
