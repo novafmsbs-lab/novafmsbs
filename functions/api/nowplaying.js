@@ -73,6 +73,19 @@ async function doStream() {
   } finally { clearTimeout(t); }
 }
 
+// A página de status troca acentos em latin-1 por "�" (charset do mount errado no Icecast), mas o
+// stream (ICY) mantém o byte original. Cada "�" vira "qualquer letra" e a frase é procurada no texto do ICY.
+// Ex.: status "Manda �udio" + ICY "Album: Manda Áudio" -> "Manda Áudio".
+function repara(titulo, icy) {
+  if (!titulo.includes("�") || !icy) return titulo;
+  if (util(icy) && icy.length === titulo.length) return icy; // ICY tem a mesma música, já com acentos
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return titulo.replace(/[^\s/-]*�[^\s/-]*/g, (palavra) => {
+    const m = icy.match(new RegExp("(?<![\\p{L}])" + palavra.split("�").map(esc).join("\\p{L}") + "(?![\\p{L}])", "u"));
+    return m ? m[0] : palavra;
+  });
+}
+
 function separa(raw) {
   let titulo = String(raw || "").replace(/\0/g, "").trim();
   let artista = "";
@@ -94,6 +107,8 @@ export async function onRequest(ctx) {
   if (!info || !info.raw) {
     try { const icy = await doStream(); if (util(icy.raw)) { info = { raw: icy.raw, ouvintes: info && info.ouvintes }; fonte = "icy"; } }
     catch (e) { /* sem título: o site mostra o programa do horário */ }
+  } else if (info.raw.includes("�")) {
+    try { info.raw = repara(info.raw, (await doStream()).raw); } catch (e) { /* fica como veio */ }
   }
 
   const corpo = {
