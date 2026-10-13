@@ -2,67 +2,67 @@
   "itens": [
     {
       "nome": "Silveira Junior",
+      "mostrar": true,
       "apelido": "O Panda",
       "foto": "/img/locutores/silveira.webp",
       "cor": "vermelho",
-      "instagram": "silveirajuniorlocutor",
-      "mostrar": true
+      "instagram": "silveirajuniorlocutor"
     },
     {
       "nome": "Claudia Lima",
+      "mostrar": true,
       "apelido": "",
-      "foto": "",
+      "foto": "/uploads/WhatsApp Image 2026-10-13 at 13.29.18.jpeg",
       "cor": "rosa",
-      "instagram": "",
-      "mostrar": true
+      "instagram": ""
     },
     {
       "nome": "Dayane Mendonça",
+      "mostrar": true,
       "apelido": "",
       "foto": "/img/locutores/dayane.webp",
       "cor": "rosa",
-      "instagram": "",
-      "mostrar": true
+      "instagram": ""
     },
     {
       "nome": "Magnus Cowboy",
+      "mostrar": true,
       "apelido": "",
       "foto": "/img/locutores/magnus.webp",
       "cor": "verde",
-      "instagram": "",
-      "mostrar": true
+      "instagram": ""
     },
     {
       "nome": "Maycon Pierre",
+      "mostrar": true,
       "apelido": "",
       "foto": "",
       "cor": "azul",
-      "instagram": "",
-      "mostrar": true
+      "instagram": ""
     },
     {
       "nome": "Leonel Mendonça",
+      "mostrar": false,
       "apelido": "",
       "foto": "/img/locutores/leonel.webp",
       "cor": "laranja",
-      "instagram": "aphonsofanho",
-      "mostrar": false
+      "instagram": "aphonsofanho"
     },
     {
       "nome": "Marcelo Lucas",
+      "mostrar": false,
       "apelido": "",
       "foto": "",
       "cor": "roxo",
-      "instagram": "",
-      "mostrar": false
+      "instagram": ""
     },
     {
       "nome": "Rafael Verbinenn",
+      "mostrar": false,
       "apelido": "",
       "foto": "",
       "cor": "amarelo",
-      "instagram": "",
-      "mostrar": false
+      "instagram": ""
     }
   ]
 }
