@@ -251,6 +251,7 @@ h2 em,.slogan em{font-style:normal;color:var(--laranja)}
 .no-ar-sec{padding:var(--s6) 0 0}
 .hero-baixo{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
 .hero-baixo.so-no-ar{grid-template-columns:1fr}
+.hero-baixo>*{min-width:0} /* títulos longos no histórico não alargam a coluna */
 .no-ar{padding:24px;display:flex;flex-direction:column;gap:16px}
 .no-ar-topo{display:flex;align-items:center;gap:16px}
 .no-ar-info{min-width:0}
