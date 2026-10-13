@@ -1,2 +1,5 @@
 # Arquivos-fonte das logos (pesados, o site usa as versões otimizadas em img/)
 img/LOGO *.png
+
+# Cache local do wrangler (testes com wrangler pages dev)
+.wrangler/

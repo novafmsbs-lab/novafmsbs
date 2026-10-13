@@ -8,7 +8,7 @@
 | **Programação** | Grade de Seg–Sex, Sábado e Domingo. O site destaca sozinho o que está **no ar**, mostra "A seguir" e monta os horários no card de cada locutor |
 | **Locutores** | Nome, apelido, foto, cor, Instagram e "Mostrar na seção Locutores" (liga/desliga o card sem apagar o cadastro). Sem foto aparece a logo da Nova |
 | **Apoiadores** | Nome, logo (opcional) e link (opcional) da faixa de apoiadores |
-| **Contato e redes** | WhatsApp do estúdio, endereço do portal de notícias e redes sociais (Instagram, Facebook, YouTube, TikTok) — cada rede vira um card "Seguir" no site |
+| **Contato e redes** | WhatsApp do estúdio, **WhatsApp comercial (opcional — usado pelo formulário da página Anuncie; vazio = usa o do estúdio)**, endereço do portal de notícias e redes sociais (Instagram, Facebook, YouTube, TikTok) — cada rede vira um card "Seguir" no site |
 
 > Dica: em **Programação → Apresentadores**, escreva o nome **igual** ao cadastrado em Locutores
 > para a foto aparecer na grade e o selo "No ar" acender no card do locutor.
@@ -16,28 +16,45 @@
 ## Como o site funciona
 
 ```
-index.html            página única (player, programação, locutores, notícias, redes, apoiadores)
-assets/site.css       visual
-assets/app.js         player, tocando agora, programação, promoções, notícias, apoiadores
+index.html            página inicial: abertura + player, programa no ar, notícias, programação, equipe,
+                      promoções (com últimos ganhadores), redes sociais e anunciantes
+anuncie.html          página comercial (formatos reais + formulário que abre o WhatsApp) — endereço /anuncie
+privacidade.html      política de privacidade da rádio (LGPD) — endereço /privacidade
+assets/site.css       visual (cores, tipografia e espaçamentos ficam como variáveis no topo, em :root)
+assets/app.js         player, tocando agora, programação, promoções, notícias, apoiadores (página inicial)
+assets/paginas.js     formulário comercial e lista de anunciantes (páginas internas)
 content/*.json        dados editados pelo painel
 img/                  logo, imagem de compartilhamento (og-image) e fotos dos locutores
-functions/api/        nowplaying.js (música tocando) e noticias.js (manchetes do portal)
+functions/api/        nowplaying.js (música tocando) e noticias.js (notícias do Portal Nova Mais)
 promocoes.html        só redireciona para /#promocoes (links e QR codes antigos continuam valendo)
 404.html, robots.txt, sitemap.xml, _headers, sw.js, manifest.webmanifest
 ```
 
-- **Tocando agora:** `/api/nowplaying` lê o Icecast e, se ele falhar, lê o título direto do stream.
+- **Player:** um único áudio no site inteiro, com estados reais — "Conectando…", "Tocando ao vivo",
+  "Carregando…" (sinal oscilando) e "Sem conexão" com botão **Tentar de novo** (depois de 3 tentativas).
+  Só mostra "tocando" quando o áudio realmente começa. Pausar encerra a conexão (não gasta dados).
+  Páginas internas (Anuncie, Privacidade) abrem em outra aba quando a rádio está tocando, para o som não parar.
+- **Tocando agora:** `/api/nowplaying` lê a página de status do Icecast (e o próprio stream como reserva).
   Títulos com "Nova FM" (vinhetas) fazem o site mostrar o programa do horário.
-- **Notícias:** `/api/noticias` busca as últimas manchetes do feed do portal (`/feed/`), com cache de 10 min.
-- **Promoções:** abrem numa janela dentro do site e usam o Worker `novafm-sorteador`
-  (`/api/agora`, `/api/promocoes`, `/api/participar`). Quando há promoção ativa, o botão
-  Promoções ganha uma bolinha vermelha e aparece um aviso discreto (uma vez por dia).
-- **Endereço direto das promoções:** `novafmsbs.com.br/#promocoes` (bom para QR code e Instagram).
+- **Notícias:** `/api/noticias` busca as 7 últimas matérias do **Portal Nova Mais** pela API do WordPress
+  (foto, categoria, resumo, data), com o RSS de reserva e cache de 10 min. As matérias, a busca e as
+  categorias continuam no portal — o site só lista e linka.
+- **Promoções:** a seção mostra todas as promoções abertas (com prêmio e regra real de chances) e os
+  últimos ganhadores (nome abreviado). A participação abre numa janela dentro do site e usa o Worker
+  `novafm-sorteador` (`/api/agora`, `/api/promocoes`, `/api/participar`, `/api/sorteados`).
+  Quando há promoção valendo, o menu Promoções ganha uma bolinha vermelha e aparece um aviso discreto.
+- **Endereço direto das promoções:** `novafmsbs.com.br/#promocoes` abre a participação (bom para QR code e Instagram).
+- **Contato comercial:** o formulário de /anuncie não guarda dados; ele abre o WhatsApp com a mensagem pronta.
+
+## Testar no computador antes de publicar
+
+Dentro desta pasta: `wrangler pages dev . --port 8788` e abra http://localhost:8788
+(roda o site com as funções de notícias e tocando agora, buscando os dados reais).
 
 ## Ao mudar CSS ou JS à mão
 
 Troque a versão `?v=...` nas duas linhas do `index.html` **e** em `sw.js` (lista `BASICOS`),
-e mude `VERSAO` em `sw.js` (ex.: `novafm-v6`). Sem isso, quem tem o app instalado continua vendo a versão antiga.
+e mude `VERSAO` em `sw.js` (ex.: `novafm-v12`). Faça o mesmo nas páginas `anuncie.html` e `privacidade.html`. Sem isso, quem tem o app instalado continua vendo a versão antiga.
 
 ---
 

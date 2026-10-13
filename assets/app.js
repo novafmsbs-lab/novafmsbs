@@ -9,6 +9,7 @@
   const PROMO_API = 'https://novafm-sorteador.novafmsbs.workers.dev';
   const SITE = 'https://novafmsbs.com.br/';
   const NOME = 'Nova FM 87,5';
+  const TITULO_ORIGINAL = document.title; // o título de SEO fica no HTML; o JS só troca enquanto toca
   const CORES = { laranja: '#FF8A1D', rosa: '#FF4D9D', vermelho: '#FF4D4D', verde: '#22C58B', azul: '#2EA6FF', roxo: '#7A5FFF', amarelo: '#FFC23D' };
   const PALETA = Object.values(CORES);
   const DIAS = ['semana', 'sabado', 'domingo'];
@@ -114,21 +115,43 @@
     return { atual, proximo, dia, min };
   }
 
-  /* ================= Player ================= */
+  /* ================= Player =================
+     Estados reais: parado → conectando → tocando ⇄ carregando; "erro" quando não conecta depois das tentativas.
+     A interface só mostra "tocando" no evento 'playing' do áudio — nunca no clique. Um único <audio> no site inteiro. */
   let audio = $('#stream');
-  let tocando = false;
-  let conectando = false;
+  let estado = 'parado';
+  let tocando = false;          // o ouvinte quer ouvir (conectando, tocando ou carregando)
+  let tentativas = 0;           // reconexões seguidas sem voltar a tocar
+  let timerConexao = 0;
+  const MAX_TENTATIVAS = 3;
   let errosSeguidos = 0;
   // Web Audio deixa o equalizador seguir a música de verdade. No iOS fica de fora: lá ele corta o som com a tela bloqueada.
   let actx = null, analisador = null, freq = null, usaAnalise = !iOS && !!(window.AudioContext || window.webkitAudioContext);
 
-  function estadoPlay() {
-    document.body.classList.toggle('tocando-on', tocando);
-    const rotulo = conectando ? 'Conectando…' : tocando ? 'Pausar' : 'Ouvir agora';
-    $$('[data-play-label]').forEach((e) => { e.textContent = rotulo; });
-    $$('[data-play]').forEach((b) => b.setAttribute('aria-label', tocando ? 'Pausar a rádio' : 'Ouvir ao vivo'));
+  const TEXTOS = {
+    parado: { rotulo: 'Ouvir ao vivo', dica: 'Toque para ouvir', status: 'Pronta para tocar', aria: 'Ouvir ao vivo' },
+    conectando: { rotulo: 'Conectando…', dica: 'Conectando ao estúdio…', status: 'Conectando…', aria: 'Parar a conexão' },
+    tocando: { rotulo: 'Pausar', dica: 'Você está ouvindo ao vivo', status: 'Tocando ao vivo', aria: 'Pausar a rádio' },
+    carregando: { rotulo: 'Carregando…', dica: 'Sinal oscilando, recuperando…', status: 'Carregando…', aria: 'Pausar a rádio' },
+    erro: { rotulo: 'Tentar de novo', dica: 'Sem conexão com a rádio', status: 'Sem conexão', aria: 'Tentar conectar de novo' },
+  };
+  function setEstado(novo, detalhe) {
+    estado = novo;
+    tocando = novo === 'conectando' || novo === 'tocando' || novo === 'carregando';
+    const t = TEXTOS[novo];
+    const b = document.body.classList;
+    Object.keys(TEXTOS).forEach((k) => b.toggle('estado-' + k, k === novo));
+    b.toggle('tocando-on', tocando);
+    $$('[data-play-label]').forEach((e) => { e.textContent = t.rotulo; });
+    $$('[data-play]').forEach((el) => { if (!el.closest('#pcErro')) el.setAttribute('aria-label', t.aria); });
+    $('#pcDica').textContent = t.dica;
+    const st = $('#pcEstado');
+    if (st.textContent !== t.status) st.textContent = t.status; // aria-live: só anuncia quando muda
+    $('#pcErro').hidden = novo !== 'erro';
+    if (detalhe) $('#pcErroTxt').textContent = detalhe;
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = tocando ? 'playing' : 'paused';
     atualizarTitulo();
+    if (tocando) talvezAnimar();
   }
 
   function montarAnalise() {
@@ -146,36 +169,58 @@
     } catch (e) { usaAnalise = false; actx = null; analisador = null; }
   }
 
-  function tocar() {
-    tocando = true; conectando = true; travado = 0;
+  function tocar(eTentativa) {
+    if (!eTentativa) tentativas = 0;
+    travado = 0;
+    setEstado('conectando');
     if (usaAnalise) { audio.crossOrigin = 'anonymous'; montarAnalise(); if (actx && actx.state === 'suspended') actx.resume(); }
     audio.src = STREAM + '?t=' + Date.now(); // sempre pega o ao vivo, não o trecho antigo do buffer
     const p = audio.play();
     if (p && p.catch) p.catch((err) => {
-      if (err && err.name === 'NotAllowedError') { tocando = false; conectando = false; estadoPlay(); toast('Toque no play para ouvir a Nova'); }
+      if (err && err.name === 'NotAllowedError') { pararAudio(); setEstado('parado'); toast('Toque no play para ouvir a Nova'); }
+      // AbortError acontece ao trocar a fonte; os eventos 'error' e o tempo-limite tratam as falhas reais
     });
-    estadoPlay();
+    clearTimeout(timerConexao);
+    timerConexao = setTimeout(() => { if (estado === 'conectando') falhou(); }, 15000);
   }
 
-  function pausar() {
-    tocando = false; conectando = false;
+  // Falhou ao conectar ou reconectar: tenta de novo algumas vezes; depois mostra o erro com "Tentar de novo".
+  function falhou() {
+    if (!tocando) return;
+    if (++tentativas < MAX_TENTATIVAS) {
+      setTimeout(() => { if (tocando) tocar(true); }, 1500 * tentativas);
+      return;
+    }
+    pararAudio();
+    setEstado('erro', navigator.onLine === false
+      ? 'Você parece estar sem internet. Confira a conexão e tente de novo.'
+      : 'Não foi possível conectar ao vivo agora. Tente de novo em instantes.');
+  }
+
+  function pararAudio() {
+    clearTimeout(timerConexao);
     audio.pause();
     audio.removeAttribute('src'); // encerra a conexão: não gasta dados com a rádio pausada
     audio.load();
-    estadoPlay();
   }
+  function pausar() { pararAudio(); setEstado('parado'); }
 
   const alternar = () => (tocando ? pausar() : tocar());
   document.addEventListener('click', (e) => { const b = e.target.closest('[data-play]'); if (b) { e.preventDefault(); alternar(); } });
 
   function ligarEventos(el) {
-    el.addEventListener('playing', () => { conectando = false; errosSeguidos = 0; estadoPlay(); talvezAnimar(); });
+    el.addEventListener('playing', () => {
+      if (!tocando) return;
+      clearTimeout(timerConexao); tentativas = 0; errosSeguidos = 0;
+      setEstado('tocando');
+    });
+    el.addEventListener('waiting', () => { if (estado === 'tocando') setEstado('carregando'); });
     el.addEventListener('ended', () => { if (tocando) reconectar(); });
     el.addEventListener('error', () => {
       if (!tocando || !el.getAttribute('src')) return;
       // Duas falhas seguidas com o equalizador real: passa para um player simples (sem CORS) e segue tocando
-      if (++errosSeguidos >= 2 && usaAnalise) { usaAnalise = false; trocarElemento(); tocar(); return; }
-      setTimeout(reconectar, 1500);
+      if (++errosSeguidos >= 2 && usaAnalise) { usaAnalise = false; trocarElemento(); tocar(true); return; }
+      falhou();
     });
   }
   function trocarElemento() {
@@ -194,12 +239,15 @@
   function reconectar() {
     if (!tocando || reconectando) return;
     reconectando = true; travado = 0;
+    if (estado === 'tocando') setEstado('carregando');
     audio.src = STREAM + '?r=' + Date.now();
     audio.play().catch(() => {});
     setTimeout(() => { reconectando = false; }, 5000);
+    clearTimeout(timerConexao); // se não voltar a tocar, conta como tentativa
+    timerConexao = setTimeout(() => { if (tocando && estado !== 'tocando') falhou(); }, 15000);
   }
   setInterval(() => {
-    if (!tocando) { travado = 0; return; }
+    if (estado !== 'tocando' && estado !== 'carregando') { travado = 0; return; }
     if (reconectando) return;
     if (audio.readyState < 2 || audio.currentTime === ultimoTempo) { if (++travado >= 4) reconectar(); }
     else travado = 0;
@@ -297,7 +345,7 @@
     atualizarTitulo();
   }
   function atualizarTitulo() {
-    document.title = tocando && musicaAtual ? '▶ ' + musicaAtual.t + ' — ' + NOME : NOME + ' — Você ouve, você gosta! | São Bento do Sul';
+    document.title = estado === 'tocando' && musicaAtual ? '▶ ' + musicaAtual.t + ' — ' + NOME : TITULO_ORIGINAL;
   }
 
   function modoPrograma() {
@@ -372,8 +420,7 @@
 
   function renderNoAr() {
     const { atual, proximo, min } = programaAgora();
-    const numero = dados.site.whatsapp;
-    if (!atual) return;
+    if (!atual) { linksEstudio(null); return; }
     const cor = corPrograma(atual);
     const quem = atual.apresentadores || [];
     $('#noAr').style.setProperty('--ac', cor);
@@ -385,8 +432,14 @@
     const ini = paraMin(atual.inicio), fim = paraMin(atual.fim);
     $('#noArBarra').style.width = Math.max(2, Math.min(100, ((min - ini) / (fim - ini)) * 100)) + '%';
     $('#aSeguir').textContent = proximo ? 'A seguir: ' + proximo.programa + ' · ' + hora(proximo.inicio) : '';
-    $('#recado').href = wa(numero, 'Olá, estúdio da Nova FM! Estou ouvindo o ' + atual.programa + ' pelo site e quero mandar um recado: ');
-    $('#pedirMusica').href = wa(numero, 'Olá, Nova FM! Quero pedir uma música no ' + atual.programa + ': ');
+    linksEstudio(atual.programa);
+  }
+  // Links de WhatsApp do estúdio: já levam o nome do programa no ar na mensagem
+  function linksEstudio(programa) {
+    const numero = dados.site.whatsapp;
+    const no = programa ? ' no ' + programa : '';
+    $$('[data-pedir]').forEach((a) => { a.href = wa(numero, 'Olá, Nova FM! Quero pedir uma música' + no + ': '); });
+    $$('[data-recado]').forEach((a) => { a.href = wa(numero, 'Olá, estúdio da Nova FM! Estou ouvindo' + (programa ? ' o ' + programa : '') + ' pelo site e quero mandar um recado: '); });
   }
 
   /* ================= Locutores ================= */
@@ -433,6 +486,7 @@
     renderNoAr();
     if (chave !== chaveAtual) {
       chaveAtual = chave;
+      renderManchetes(); // troca o "No ar" quando muda o programa
       renderEquipe();
       if (abaAtiva) renderGrade(abaAtiva);
       if (!musicaAtual) modoPrograma();
@@ -477,20 +531,69 @@
     const h = Math.round(m / 60); if (h < 24) return 'Há ' + h + 'h';
     const dd = Math.round(h / 24); return dd === 1 ? 'Ontem' : 'Há ' + dd + ' dias';
   }
+  const fmtDia = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', timeZone: 'America/Sao_Paulo' });
+  function quandoFoi(iso) {
+    const d = new Date(iso); if (isNaN(d)) return '';
+    return Date.now() - d < 24 * 3600e3 ? tempoAtras(iso) : fmtDia.format(d).replace('.', '');
+  }
+  // Cartão de notícia: o título leva à matéria no portal; categoria e compartilhar ficam clicáveis por cima.
+  function cartaoNoticia(n, tipo) {
+    const link = urlSegura(n.link); if (!link) return '';
+    const im = n.imagem || null;
+    const grande = tipo === 'destaque' && im && urlSegura(im.grande);
+    const src = im && (grande || urlSegura(im.url));
+    const w = grande ? im.grandeLargura : im && im.largura, h = grande ? im.grandeAltura : im && im.altura;
+    const foto = src ? '<div class="foto"><img src="' + esc(src) + '"' + (w && h ? ' width="' + (+w) + '" height="' + (+h) + '"' : '') + ' alt="' + esc((im && im.alt) || '') + '" loading="lazy" decoding="async"></div>' : '';
+    const cat = n.categoria && n.categoria.nome
+      ? (urlSegura(n.categoria.link) ? '<a class="cat" href="' + esc(urlSegura(n.categoria.link)) + '" target="_blank" rel="noopener">' + esc(n.categoria.nome) + '</a>' : '<span class="cat">' + esc(n.categoria.nome) + '</span>')
+      : '';
+    const data = n.data ? '<time datetime="' + esc(n.data) + '">' + esc(quandoFoi(n.data)) + '</time>' : '';
+    const resumo = tipo !== 'compacta' && n.resumo ? '<p>' + esc(n.resumo) + '</p>' : '';
+    const partilha = '<a class="compartilha" href="' + esc('https://wa.me/?text=' + encodeURIComponent(n.titulo + ' — ' + link)) + '" target="_blank" rel="noopener" aria-label="Compartilhar no WhatsApp: ' + esc(n.titulo) + '"><svg><use href="#i-wa"/></svg>Compartilhar</a>';
+    return '<article class="noticia ' + tipo + '">' + foto + '<div class="corpo"><div class="meta">' + cat + data + '</div>' +
+      '<h3><a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(n.titulo) + '</a></h3>' + resumo + partilha + '</div></article>';
+  }
   function carregarNoticias() {
+    const alvo = $('#noticiasConteudo');
     const portal = urlSegura(dados.site.portal_noticias) || 'https://portalnovafmsbs.com.br';
     $('#portalLink').href = portal;
-    getJSON(NOTICIAS, 10000).then((d) => {
-      const itens = (d && d.itens) || [];
-      if (!itens.length) return;
-      $('#portalLista').innerHTML = itens.slice(0, 4).map((n) => {
-        const link = urlSegura(n.link) || portal;
-        return '<li><a href="' + esc(link) + '" target="_blank" rel="noopener"><b>' + esc(n.titulo) + '</b><span>' + esc(tempoAtras(n.data)) + '</span></a></li>';
-      }).join('');
-      $('#portalUltimas').hidden = false;
-      $('#portal').classList.add('com-lista');
-    }).catch(() => {});
+    getJSON(NOTICIAS, 12000).then((d) => {
+      const itens = ((d && d.itens) || []).filter((n) => n && n.titulo && urlSegura(n.link));
+      if (!itens.length) throw new Error('sem notícias');
+      const [principal, ...resto] = itens;
+      alvo.innerHTML = '<div class="noticias-grid">' + cartaoNoticia(principal, 'destaque') +
+        '<div class="noticias-lado">' + resto.slice(0, 3).map((n) => cartaoNoticia(n, 'compacta')).join('') + '</div></div>' +
+        (resto.length > 3 ? '<div class="noticias-mais">' + resto.slice(3, 6).map((n) => cartaoNoticia(n, '')).join('') + '</div>' : '');
+      renderManchetes(itens);
+    }).catch(() => {
+      alvo.innerHTML = '<div class="vazio"><b>Não conseguimos carregar as notícias agora</b>Acompanhe as notícias da região direto no <a href="' + esc(portal) + '" target="_blank" rel="noopener" style="color:#6cc1ff;text-decoration:underline">Portal Nova Mais</a>.</div>';
+    }).finally(() => alvo.setAttribute('aria-busy', 'false'));
   }
+
+  /* Letreiro: "No ar" (da grade) + manchetes do portal. Só existe com notícias reais; a segunda cópia serve
+     apenas para o giro contínuo e fica fora do leitor de tela e do Tab. */
+  let manchetes = [];
+  function itemNoAr() {
+    const { atual } = programaAgora();
+    if (!atual) return '';
+    const quem = nomesJuntos(atual.apresentadores || []);
+    return '<li class="m-vivo"><a href="#inicio"><b>No ar</b>' + esc(atual.programa + (quem ? ' com ' + quem : '')) + '</a></li>';
+  }
+  function renderManchetes(itens) {
+    if (itens) manchetes = itens.slice(0, 7);
+    const sec = $('#manchetes'), trilho = $('#manchetesTrilho');
+    if (!sec || !manchetes.length) return;
+    const lis = itemNoAr() + manchetes.map((n) => '<li><a href="' + esc(urlSegura(n.link)) + '" target="_blank" rel="noopener">' +
+      (n.categoria && n.categoria.nome ? '<b>' + esc(n.categoria.nome) + '</b>' : '') + esc(n.titulo) + '</a></li>').join('');
+    const dup = lis.replace(/<li( class="m-vivo")?>/g, (m, c) => '<li class="dup' + (c ? ' m-vivo' : '') + '" aria-hidden="true">').replace(/<a /g, '<a tabindex="-1" ');
+    trilho.innerHTML = lis + dup;
+    sec.hidden = false;
+    trilho.style.setProperty('--dur', Math.max(30, Math.round(trilho.scrollWidth / 2 / 55)) + 's'); // ~55 px/s
+  }
+  $('#manchetesPausa').addEventListener('click', (e) => {
+    const p = $('#manchetes').classList.toggle('pausado');
+    e.currentTarget.setAttribute('aria-pressed', String(p));
+  });
 
   /* ================= Redes sociais ================= */
   const REDES = {
@@ -542,7 +645,6 @@
       bt.textContent = abrir ? 'Recolher' : 'Ver todos';
       bt.setAttribute('aria-expanded', abrir);
     });
-    $('#anuncie').href = wa(dados.site.whatsapp, 'Olá! Quero anunciar minha empresa na Nova FM 87,5.');
   }
   function carregarApoiadores() {
     getJSON('/content/apoiadores.json').then((d) => renderApoiadores((d && d.itens) || [])).catch(() => { $('#apoiadores').hidden = true; });
@@ -551,20 +653,74 @@
   /* ================= Promoções (dentro do site) ================= */
   const dlg = $('#promo');
   const corpo = $('#promoCorpo');
-  let promo = { programa: null, lista: [], ts: 0, erro: false };
+  // todas = promoções abertas; lista = as que dá para participar agora (geral, ou do programa que está no ar)
+  let promo = { programa: null, todas: [], lista: [], ts: 0, erro: false };
   let escolhida = null;
 
   function carregarPromos(forcar) {
     if (!forcar && promo.ts && Date.now() - promo.ts < 60000) return Promise.resolve(promo);
     return Promise.all([getJSON(PROMO_API + '/api/agora'), getJSON(PROMO_API + '/api/promocoes')]).then(([a, p]) => {
       const programa = (a && a.programa) || null;
-      const lista = ((p && p.promocoes) || []).filter((x) => x && (x.escopo === 'geral' || x.programa === programa));
-      promo = { programa, lista, ts: Date.now(), erro: false };
+      const todas = ((p && p.promocoes) || []).filter((x) => x && x.id && x.nome);
+      // mesma regra do servidor: só dá para participar com um programa no ar (8h–21h)
+      const lista = programa ? todas.filter((x) => x.escopo === 'geral' || x.programa === programa) : [];
+      promo = { programa, todas, lista, ts: Date.now(), erro: false };
       return promo;
-    }).catch(() => { promo = { programa: null, lista: [], ts: Date.now(), erro: true }; return promo; });
+    }).catch(() => { promo = { programa: null, todas: [], lista: [], ts: Date.now(), erro: true }; return promo; });
+  }
+
+  // Horário do programa de uma promoção, tirado da grade real do site (ex.: "10h–12h")
+  function horarioDoPrograma(nome) {
+    for (const dia of DIAS) { const s = (dados.grade[dia] || []).find((x) => norm(x.programa) === norm(nome)); if (s) return faixa(s); }
+    return '';
+  }
+  function renderPromoSecao() {
+    const alvo = $('#promoCards');
+    if (promo.erro) {
+      alvo.innerHTML = '<div class="vazio"><b>Promoções indisponíveis no momento</b>O sistema de promoções não respondeu agora.<br><button class="btn" type="button" id="promoSecDeNovo" style="margin-top:12px">Tentar de novo</button></div>';
+      $('#promoSecDeNovo').addEventListener('click', () => carregarPromos(true).then(sinalizarPromos));
+      return;
+    }
+    if (!promo.todas.length) {
+      alvo.innerHTML = '<div class="vazio"><b>Nenhuma promoção aberta agora</b>As próximas promoções são anunciadas no ar e no Instagram @novafm_sbs. Fica ligado na Nova!</div>';
+      return;
+    }
+    alvo.innerHTML = promo.todas.map((x) => {
+      const agora = promo.lista.some((y) => y.id === x.id);
+      const horario = x.escopo === 'programa' ? horarioDoPrograma(x.programa) : '';
+      const quando = x.escopo === 'programa'
+        ? 'Participe durante o ' + esc(x.programa) + (horario ? ' (' + horario + ')' : '')
+        : 'Participe durante a programação ao vivo, das 8h às 21h';
+      const chance = x.modo === 'cartela'
+        ? 'Quanto mais dias você participar, mais chances de ganhar'
+        : 'Todos os participantes têm a mesma chance';
+      return '<article class="promo-card"><span class="pc-ic"><svg><use href="#i-gift"/></svg></span>' +
+        '<h3>' + esc(x.nome) + '</h3>' +
+        (x.premio ? '<p class="premio"><small>Prêmio</small>' + esc(x.premio) + '</p>' : '') +
+        '<ul><li><svg><use href="#i-clock"/></svg><span>' + quando + '</span></li><li><svg><use href="#i-check"/></svg><span>' + chance + '</span></li></ul>' +
+        '<div class="acoes-pc">' + (agora
+          ? '<button class="btn btn-primario" type="button" data-promo-abrir data-promo-id="' + (+x.id) + '">Participar agora</button><span class="status-pc aberta">● Aberta agora</span>'
+          : '<span class="status-pc">' + (x.escopo === 'programa' ? 'Abre durante o ' + esc(x.programa) : 'Abre com a programação ao vivo, às 8h') + '</span>') + '</div></article>';
+    }).join('');
+  }
+
+  // Últimos ganhadores (o servidor já devolve o nome abreviado, ex.: "Maria S.")
+  function carregarGanhadores() {
+    getJSON(PROMO_API + '/api/sorteados?limite=6').then((d) => {
+      const lista = ((d && d.sorteados) || []).filter((g) => g && g.nome);
+      if (!lista.length) return;
+      $('#listaGanhadores').innerHTML = lista.map((g) => {
+        const dt = g.quando ? new Date(String(g.quando).replace(' ', 'T') + 'Z') : null;
+        const data = dt && !isNaN(dt) ? dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '';
+        return '<li><span class="trofeu"><svg><use href="#i-trophy"/></svg></span><span><b>' + esc(g.nome) + '</b><span>' +
+          esc([g.premio || g.promocao, data].filter(Boolean).join(' · ')) + '</span></span></li>';
+      }).join('');
+      $('#ganhadores').hidden = false;
+    }).catch(() => {});
   }
 
   function sinalizarPromos() {
+    renderPromoSecao();
     const tem = promo.lista.length > 0;
     $$('.promo-dot').forEach((d) => { d.hidden = !tem; });
     const aviso = $('#avisoPromo');
@@ -664,14 +820,18 @@
     return '(' + d.slice(0, 2) + ') ' + d.slice(2, corte) + (d.length > corte ? '-' + d.slice(corte) : '');
   }
 
-  function abrirPromo() {
+  function abrirPromo(id) {
     if (dlg.open) return;
     $('#avisoPromo').hidden = true;
     fecharMenu();
     dlg.showModal();
     if (!(history.state && history.state.promo)) history.pushState({ promo: 1 }, '', '#promocoes');
     telaCarregando();
-    carregarPromos(true).then(() => { sinalizarPromos(); telaPromo(); });
+    carregarPromos(true).then(() => {
+      sinalizarPromos();
+      const alvo = id && promo.lista.find((x) => x.id === id);
+      if (alvo) { escolhida = alvo; telaFormulario(); } else telaPromo();
+    });
   }
   // Fechou pela tela (X, Esc, fundo): desfaz o #promocoes. Se o navegador ignorar o back(), limpa o endereço.
   dlg.addEventListener('close', () => {
@@ -682,7 +842,8 @@
   window.addEventListener('popstate', () => { if (dlg.open && !(history.state && history.state.promo)) dlg.close(); });
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-promo-abrir]')) { e.preventDefault(); abrirPromo(); }
+    const abre = e.target.closest('[data-promo-abrir]');
+    if (abre) { e.preventDefault(); abrirPromo(+abre.dataset.promoId || null); }
     else if (e.target.closest('[data-promo-fechar]')) dlg.close();
   });
   // links antigos (/promocoes.html) e QR codes chegam como /#promocoes
@@ -700,9 +861,13 @@
     menu.classList.toggle('aberto', abre);
     burger.setAttribute('aria-expanded', abre);
     burger.setAttribute('aria-label', abre ? 'Fechar menu' : 'Abrir menu');
+    if (abre) { const primeiro = menu.querySelector('a'); if (primeiro) primeiro.focus(); } // teclado entra no menu
   });
   menu.addEventListener('click', (e) => { if (e.target.closest('a,button')) fecharMenu(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharMenu(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !menu.classList.contains('aberto')) return;
+    fecharMenu(); burger.focus(); // devolve o foco para quem abriu
+  });
   document.addEventListener('click', (e) => { if (!e.target.closest('.topo')) fecharMenu(); });
 
   /* ================= Instalar o app (PWA) ================= */
@@ -724,7 +889,7 @@
   /* ================= Início ================= */
   $('#ano').textContent = new Date().getFullYear();
   renderHistorico();
-  estadoPlay();
+  setEstado('parado');
   carregarBanner();
   carregarApoiadores();
 
@@ -744,15 +909,22 @@
     renderRedes();
     carregarNoticias();
     buscarTocando();
+    if (promo.ts) renderPromoSecao(); // agora com os horários da grade
     setInterval(tique, 30000);
     setInterval(buscarTocando, 15000);
   });
 
-  // promoções: confere sem atrapalhar o carregamento da página
-  setTimeout(() => carregarPromos().then(sinalizarPromos), 2500);
+  carregarPromos().then(sinalizarPromos);
+  carregarGanhadores();
   setInterval(() => { if (!document.hidden) carregarPromos(true).then(sinalizarPromos); }, 5 * 60000);
-  abrirPeloLink();
-  window.addEventListener('hashchange', abrirPeloLink);
+  abrirPeloLink(); // QR codes e links antigos chegam como /#promocoes e abrem a participação direto
+
+  // Páginas internas (Anuncie, Privacidade) abrem em outra aba enquanto a rádio toca, para o som não parar.
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-pagina]');
+    if (!a) return;
+    if (tocando) { a.target = '_blank'; a.rel = 'noopener'; } else a.removeAttribute('target');
+  }, true);
 
   if ('serviceWorker' in navigator && location.hostname !== 'localhost') window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 })();

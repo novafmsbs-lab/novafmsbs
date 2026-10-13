@@ -137,6 +137,7 @@ collections:
         file: "content/site.json"
         fields:
           - { label: "WhatsApp do estúdio", name: "whatsapp", widget: "string", hint: "Só números, com 55 e DDD — ex.: 554736335401", pattern: ['^\d{12,13}$', "Use só números, com 55 + DDD + número"] }
+          - { label: "WhatsApp comercial (opcional)", name: "whatsapp_comercial", widget: "string", required: false, hint: "Número usado pelo formulário da página Anuncie. Deixe vazio para usar o WhatsApp do estúdio.", pattern: ['^(\d{12,13})?$', "Use só números, com 55 + DDD + número"] }
           - { label: "Endereço do portal de notícias", name: "portal_noticias", widget: "string", hint: "Ex.: https://portalnovafmsbs.com.br" }
           - label: "Redes sociais"
             name: "redes"
