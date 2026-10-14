@@ -2,8 +2,8 @@
    Página e dados: rede primeiro (sempre o conteúdo novo), com cópia para abrir offline.
    Imagens, CSS e JS: cache primeiro, atualizando em segundo plano.
    Ao mudar arquivos em /assets, troque o ?v= no index.html e a versão abaixo. */
-const VERSAO = 'novafm-v19';
-const BASICOS = ['/', '/assets/site.css?v=20261014d', '/assets/app.js?v=20261014d', '/img/logo-mark.webp', '/img/logo-nova.webp',
+const VERSAO = 'novafm-v22';
+const BASICOS = ['/', '/assets/site.css?v=20261014g', '/assets/app.js?v=20261014g', '/img/logo-mark.webp', '/img/logo-nova.webp',
   '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {

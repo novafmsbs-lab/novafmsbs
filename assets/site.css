@@ -161,6 +161,13 @@ h2 em,.slogan em{font-style:normal;color:var(--laranja)}
 @keyframes pulsa{0%{box-shadow:0 0 0 2px var(--bg),0 0 0 2px rgba(255,77,77,.6)}80%,100%{box-shadow:0 0 0 2px var(--bg),0 0 0 9px rgba(255,77,77,0)}}
 .topo-acoes{display:flex;align-items:center;gap:6px}
 .btn-ouvir{min-height:44px;padding:0 16px 0 12px;font-size:14.5px;font-weight:800}
+/* Botão verde do app no topo (Android e computador; no iPhone volta o "Ouvir ao vivo") */
+.btn-app-topo{min-height:44px;padding:0 16px 0 13px;font-size:14.5px;font-weight:800;background:var(--sucesso);border-color:transparent;color:#062b14;
+  box-shadow:0 0 0 0 rgba(34,221,110,.55),0 8px 22px rgba(34,221,110,.25);animation:chamaApp 2.4s ease-out infinite}
+.btn-app-topo:hover{background:#4be88a;border-color:transparent;color:#062b14}
+.btn-app-topo svg{width:18px;height:18px}
+.btn-app-topo .lab-curto{display:none}
+@keyframes chamaApp{0%{box-shadow:0 0 0 0 rgba(34,221,110,.55),0 8px 22px rgba(34,221,110,.25)}70%,100%{box-shadow:0 0 0 12px rgba(34,221,110,0),0 8px 22px rgba(34,221,110,.25)}}
 .btn-ouvir .bola{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#1a0d00;color:var(--laranja)}
 .btn-ouvir .bola svg{width:14px;height:14px}
 .burger{display:none}
@@ -630,6 +637,14 @@ body.pagina-interna{padding-bottom:env(safe-area-inset-bottom)}
   @keyframes folhaSobe{from{transform:translateY(100%)}}
   .folha-corpo{padding-bottom:calc(26px + env(safe-area-inset-bottom))}
   .btn-ouvir{padding:0 12px 0 8px}
+}
+@media (max-width:440px){
+  .btn-app-topo{font-size:13px;padding:0 11px 0 9px;gap:6px}
+  .btn-app-topo svg{width:16px;height:16px}
+}
+@media (max-width:349px){
+  .btn-app-topo .lab-longo{display:none}
+  .btn-app-topo .lab-curto{display:inline}
 }
 @media (max-width:360px){
   .btn-ouvir .lab{display:none}

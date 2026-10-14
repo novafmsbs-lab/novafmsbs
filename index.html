@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/img/logo-nova.webp" fetchpriority="high">
-<link rel="stylesheet" href="/assets/site.css?v=20261014d">
+<link rel="stylesheet" href="/assets/site.css?v=20261014g">
 
 <script type="application/ld+json">
 {
@@ -98,7 +98,8 @@
       <button class="menu-extra" type="button" data-instalar hidden><svg><use href="#i-down"/></svg>Instalar o app</button>
     </nav>
     <div class="topo-acoes">
-      <button class="btn btn-primario btn-ouvir" type="button" data-play aria-label="Ouvir ao vivo">
+      <a class="btn btn-app-topo" href="#app" data-app-android><svg><use href="#i-down"/></svg><span class="lab-longo">Experimente o app da Nova!</span><span class="lab-curto">App da Nova</span></a>
+      <button class="btn btn-primario btn-ouvir" data-app-ios hidden type="button" data-play aria-label="Ouvir ao vivo">
         <span class="bola"><svg class="ic-play"><use href="#i-play"/></svg><svg class="ic-pause"><use href="#i-pause"/></svg></span><span class="lab" data-play-label>Ouvir ao vivo</span>
       </button>
       <button class="btn-icone burger" type="button" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu"><svg><use href="#i-menu"/></svg></button>
@@ -380,6 +381,6 @@
 
 <audio id="stream" preload="none"></audio>
 
-<script src="/assets/app.js?v=20261014d" defer></script>
+<script src="/assets/app.js?v=20261014g" defer></script>
 </body>
 </html>
