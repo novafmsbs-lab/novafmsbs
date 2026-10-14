@@ -167,8 +167,9 @@ h2 em,.slogan em{font-style:normal;color:var(--laranja)}
 
 /* Letreiro de manchetes (abaixo do cabeçalho; pausa no hover, no foco e no botão) */
 .manchetes{position:relative;z-index:40;display:flex;align-items:center;height:42px;padding:0;background:rgba(255,255,255,.035);border-bottom:1px solid var(--linha);font-size:14px}
-.manchetes-selo{flex:none;display:inline-flex;align-items:center;gap:7px;height:100%;padding:0 14px 0 max(16px,calc((100vw - 1200px)/2));font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--bg);box-shadow:8px 0 14px var(--bg)}
-.manchetes-selo i{width:8px;height:8px;border-radius:50%;background:var(--no-ar);animation:pulsa 1.6s infinite}
+.manchetes-selo{flex:none;display:inline-flex;align-items:center;gap:7px;height:100%;padding:0 14px 0 max(16px,calc((100vw - 1200px)/2));font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+.manchetes-selo i{width:8px;height:8px;border-radius:50%;background:#ff5a66;box-shadow:0 0 8px rgba(255,90,102,.8);animation:pisca 1.6s ease-in-out infinite}
+@keyframes pisca{50%{opacity:.35}}
 .manchetes-janela{flex:1;min-width:0;overflow:hidden;height:100%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent)}
 .manchetes-trilho{display:flex;align-items:center;height:100%;width:max-content;margin:0;padding:0;list-style:none;animation:desliza var(--dur,80s) linear infinite}
 .manchetes:hover .manchetes-trilho,.manchetes:focus-within .manchetes-trilho,.manchetes.pausado .manchetes-trilho{animation-play-state:paused}
@@ -178,7 +179,7 @@ h2 em,.slogan em{font-style:normal;color:var(--laranja)}
 .manchetes-trilho a:hover{color:var(--txt)}
 .manchetes-trilho b{margin-right:7px;color:#6cc1ff;font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase}
 .manchetes-trilho .m-vivo b{color:#ff8a92}
-.manchetes-pausa{flex:none;display:grid;place-items:center;width:42px;height:42px;margin-right:max(4px,calc((100vw - 1200px)/2 - 12px));color:var(--txt-2);background:var(--bg);box-shadow:-8px 0 14px var(--bg)}
+.manchetes-pausa{flex:none;display:grid;place-items:center;width:42px;height:42px;margin-right:max(4px,calc((100vw - 1200px)/2 - 12px));color:var(--txt-2);border-radius:10px}
 .manchetes-pausa:hover{color:var(--txt)}
 .manchetes-pausa svg{width:16px;height:16px;fill:currentColor}
 .manchetes-pausa .mp-play,.manchetes.pausado .mp-pausa{display:none}
@@ -418,6 +419,30 @@ a.apoio:hover{border-color:color-mix(in srgb,var(--ac) 60%,transparent);backgrou
 .rodape-marca p{color:var(--txt-2);font-size:14.5px;max-width:300px;margin-top:14px}
 .rodape-app{color:var(--txt-2);font-size:14px;margin-bottom:12px}
 .rodape-fim{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:40px;padding-top:22px;border-top:1px solid var(--linha);font-size:13px;color:var(--txt-3);font-weight:600}
+
+/* App da Nova (card de divulgação do APK) */
+.app-sec{padding:var(--s7) 0 0}
+.app-card{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:var(--s6);align-items:center;
+  padding:clamp(24px,4vw,44px);border-radius:var(--raio-g);background:var(--vidro);border:1px solid rgba(61,123,255,.35);
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 24px 60px rgba(0,0,0,.35),0 0 48px rgba(61,123,255,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.app-brilho{position:absolute;z-index:-1;inset:auto -10% -40% auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(61,123,255,.35),transparent 65%);pointer-events:none}
+.app-brilho::after{content:"";position:absolute;left:-110%;top:-30%;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,77,157,.18),transparent 65%)}
+.app-icone{width:76px;height:76px;border-radius:20px;margin-bottom:18px;box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.12)}
+.app-kicker{color:#9cc0ff}
+.app-kicker i{width:8px;height:8px;border-radius:50%;background:var(--sucesso);box-shadow:0 0 10px var(--sucesso)}
+.app-intro p{color:var(--txt-2);margin-top:12px;max-width:52ch}
+.app-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.app-intro .app-meta{font-size:var(--fs-sm);color:var(--txt-3);margin-top:12px}
+.app-ios{padding:14px 16px;border-radius:var(--raio-p);background:var(--sup);border:1px solid var(--linha);font-size:15px}
+.app-passos{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.app-passos li{display:flex;gap:16px;align-items:flex-start;padding:18px;border-radius:var(--raio);background:var(--sup);border:1px solid var(--linha)}
+.app-num{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;font-size:18px;box-shadow:0 6px 18px rgba(122,95,255,.35)}
+.app-passos div>b{display:block;font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em}
+.app-passos div>span{display:block;color:var(--txt-2);font-size:15px;margin-top:3px}
+.app-passos div>span b{display:inline;font-size:inherit;color:var(--txt)}
+.tag-novo{margin-left:6px;padding:2px 6px;border-radius:6px;background:var(--sucesso);color:#062b14;font-size:10px;font-weight:800;font-style:normal;letter-spacing:.06em;text-transform:uppercase;vertical-align:2px}
+@media (max-width:860px){.app-card{grid-template-columns:1fr}}
+@media (max-width:560px){.app-ctas .btn{flex:1 1 100%}.app-passos li{padding:14px;gap:12px}}
 
 /* ============ 7. PÁGINAS INTERNAS (anuncie, privacidade) ============ */
 .pagina-hero{position:relative;padding:var(--s7) 0 var(--s6);overflow:hidden;isolation:isolate}

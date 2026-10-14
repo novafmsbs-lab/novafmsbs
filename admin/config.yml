@@ -79,7 +79,7 @@ collections:
   - name: locutores
     label: "Locutores"
     label_singular: "Locutor"
-    description: "Equipe que aparece no site. Os programas de cada um vêm automaticamente da Programação."
+    description: "RESERVA. A equipe do site agora vem do painel da plataforma (menu Programação › Locutores): foto, apelido, Instagram e quem aparece. Aqui só vale a cor de destaque de cada um e o cadastro de emergência, usado se o painel estiver fora do ar."
     files:
       - name: equipe
         label: "Equipe de locutores"

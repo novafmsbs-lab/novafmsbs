@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/img/logo-nova.webp" fetchpriority="high">
-<link rel="stylesheet" href="/assets/site.css?v=20261014a">
+<link rel="stylesheet" href="/assets/site.css?v=20261014c">
 
 <script type="application/ld+json">
 {
@@ -94,6 +94,7 @@
       <a href="#locutores">Equipe</a>
       <a href="#promocoes">Promoções<i class="promo-dot" hidden></i></a>
       <a href="#apoiadores">Anunciantes</a>
+      <a href="#app">App<i class="tag-novo">novo</i></a>
       <button class="menu-extra" type="button" data-instalar hidden><svg><use href="#i-down"/></svg>Instalar o app</button>
     </nav>
     <div class="topo-acoes">
@@ -203,6 +204,41 @@
     </div>
   </section>
 
+  <!-- APP DA NOVA (Android, enquanto não está na Play Store) -->
+  <section class="app-sec" id="app" aria-labelledby="tApp">
+    <div class="wrap">
+      <div class="app-card">
+        <div class="app-brilho" aria-hidden="true"></div>
+        <div class="app-intro">
+          <img class="app-icone" src="/icons/icon-192.png" width="192" height="192" alt="">
+          <span class="kicker app-kicker"><i></i>Novo · App da Nova</span>
+          <h2 id="tApp">Experimente o <em>app da Nova</em></h2>
+          <p>A rádio tocando com a tela bloqueada, pedido de música e áudio para o estúdio, chat com o locutor, enquetes e promoções na palma da mão.</p>
+          <div class="app-ctas" data-app-android>
+            <a class="btn btn-primario btn-grande" id="appBaixar" href="/app/NovaFM-2.3.0.apk" download><svg><use href="#i-down"/></svg>Baixar o app</a>
+            <a class="btn btn-leve" href="/app" data-pagina>Mais detalhes<svg><use href="#i-arrow"/></svg></a>
+          </div>
+          <p class="app-meta" id="appMeta" data-app-android>Para Android 7 ou mais novo · grátis</p>
+          <p class="app-ios" data-app-ios hidden><b>Usa iPhone?</b> A versão para iPhone está em preparação. Enquanto isso, ouça pelo site: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p>
+        </div>
+        <ol class="app-passos" aria-label="Como instalar no Android">
+          <li>
+            <span class="app-num" aria-hidden="true">1</span>
+            <div><b>Baixe o app</b><span>Toque em “Baixar o app”. Se o navegador perguntar se quer manter o arquivo, confirme.</span></div>
+          </li>
+          <li>
+            <span class="app-num" aria-hidden="true">2</span>
+            <div><b>Permita a instalação</b><span>Abra o arquivo baixado. Se o Android avisar, toque em <b>Configurações</b> e ative <b>Permitir desta fonte</b>. É um aviso padrão para apps fora da Play Store.</span></div>
+          </li>
+          <li>
+            <span class="app-num" aria-hidden="true">3</span>
+            <div><b>Instale e abra</b><span>Volte, toque em <b>Instalar</b> e depois em <b>Abrir</b>. O ícone da Nova fica na tela inicial.</span></div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
   <!-- NOTÍCIAS -->
   <section id="noticias" aria-labelledby="tNoticias">
     <div class="wrap">
@@ -301,7 +337,7 @@
     <div><h4>Navegar</h4><a href="#noticias">Notícias</a><a href="#programacao">Programação</a><a href="#locutores">Equipe</a><a href="#promocoes">Promoções</a></div>
     <div><h4>A Nova</h4><a href="/app" data-pagina>App para Android</a><a href="/anuncie" data-pagina>Anuncie</a><a href="/privacidade" data-pagina>Política de Privacidade</a><a href="https://portalnovafmsbs.com.br" target="_blank" rel="noopener">Portal Nova Mais</a></div>
     <div><h4>Contato</h4><a data-wa-link href="https://wa.me/554736335401" target="_blank" rel="noopener">WhatsApp (47) 3633-5401</a><a href="https://instagram.com/novafm_sbs" target="_blank" rel="noopener">Instagram @novafm_sbs</a></div>
-    <div id="rodapeApp"><h4>App</h4><p class="rodape-app">Instale a Nova no celular e ouça com um toque.</p><button class="btn btn-leve" type="button" data-instalar><svg><use href="#i-down"/></svg>Instalar o app</button></div>
+    <div id="rodapeApp"><h4>App</h4><p class="rodape-app">Ouça a Nova no celular, até com a tela bloqueada.</p><a class="btn btn-leve" href="#app"><svg><use href="#i-down"/></svg>Baixar o app</a></div>
   </div>
   <div class="wrap rodape-fim"><span>© <span id="ano">2026</span> Nova FM 87,5 — São Bento do Sul, SC</span><span>Você ouve, você gosta!</span></div>
 </footer>
@@ -344,6 +380,6 @@
 
 <audio id="stream" preload="none"></audio>
 
-<script src="/assets/app.js?v=20261014a" defer></script>
+<script src="/assets/app.js?v=20261014c" defer></script>
 </body>
 </html>

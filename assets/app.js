@@ -27,6 +27,7 @@
   };
   const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const android = /android/i.test(navigator.userAgent);
 
   function getJSON(url, ms = 8000, opts = {}) {
     const ctrl = new AbortController();
@@ -905,7 +906,8 @@
   let pedidoInstalar = null;
   const instalado = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   function botoesInstalar() {
-    $$('[data-instalar]').forEach((b) => { b.hidden = instalado() || (b.classList.contains('menu-extra') && !pedidoInstalar && !iOS); });
+    // No Android o caminho é o app nativo (card #app); "instalar o site" fica para o iPhone e o computador.
+    $$('[data-instalar]').forEach((b) => { b.hidden = instalado() || android || (b.classList.contains('menu-extra') && !pedidoInstalar && !iOS); });
     $('#rodapeApp').hidden = instalado(); // dentro do app instalado não faz sentido oferecer a instalação
   }
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); pedidoInstalar = e; botoesInstalar(); });
@@ -917,10 +919,31 @@
   });
   botoesInstalar();
 
+  /* ================= App da Nova (APK) =================
+     O link e a versão vêm de /app/versao.json (o mesmo arquivo que avisa o app de atualização). */
+  function cardApp() {
+    $$('[data-app-ios]').forEach((e) => { e.hidden = !iOS; });
+    $$('[data-app-android]').forEach((e) => { e.hidden = iOS; });
+    if (iOS) return;
+    getJSON('/app/versao.json').then((v) => {
+      const url = v && /^https:\/\/novafmsbs\.com\.br\/app\/[\w.-]+\.apk$/.test(v.url || '') ? v.url : '';
+      if (!url) return;
+      const caminho = new URL(url).pathname;
+      $('#appBaixar').href = caminho;
+      const meta = (tam) => 'Versão ' + esc(v.versionName || '') + (tam ? ' · ' + tam : '') + ' · Android 7 ou mais novo · grátis';
+      $('#appMeta').textContent = meta('');
+      fetch(caminho, { method: 'HEAD' }).then((r) => {
+        const b = +r.headers.get('content-length');
+        if (b > 0) $('#appMeta').textContent = meta((b / 1048576).toFixed(1).replace('.', ',') + ' MB');
+      }).catch(() => {});
+    }).catch(() => {});
+  }
+
   /* ================= Início ================= */
   $('#ano').textContent = new Date().getFullYear();
   renderHistorico();
   setEstado('parado');
+  cardApp();
   carregarBanner();
   carregarApoiadores();
 
@@ -938,14 +961,29 @@
     return out;
   }
 
+  // Locutores do painel da plataforma (só os ativos, na ordem do painel). A cor de destaque continua vindo do
+  // cadastro antigo do site quando o nome bate; quem não estiver lá ganha uma cor fixa pelo nome.
+  function equipeDaPlataforma(g, antiga) {
+    const locs = ((g && g.locutores) || []).filter((l) => l && l.nome);
+    if (!locs.length) throw new Error('sem locutores');
+    const cores = new Map(((antiga && antiga.itens) || []).map((l) => [norm(l.nome), l.cor]));
+    return locs.map((l) => ({
+      nome: l.nome, apelido: l.apelido || '', instagram: l.instagram || '', cor: cores.get(norm(l.nome)) || '',
+      foto: l.foto ? (/^https?:\/\//i.test(l.foto) ? l.foto : PLATAFORMA + l.foto) : '',
+    }));
+  }
+
+  const daPlataforma = getJSON(API_APP + '/programacao').catch(() => null);
+  const equipeAntiga = getJSON('/content/locutores.json').catch(() => null);
   Promise.all([
     getJSON('/content/site.json').catch(() => null),
-    getJSON(API_APP + '/programacao').then(gradeDaPlataforma).catch(() => getJSON('/content/programacao.json').catch(() => null)),
-    getJSON('/content/locutores.json').catch(() => null),
+    daPlataforma.then(gradeDaPlataforma).catch(() => getJSON('/content/programacao.json').catch(() => null)),
+    Promise.all([daPlataforma, equipeAntiga]).then(([g, antiga]) => equipeDaPlataforma(g, antiga))
+      .catch(() => equipeAntiga.then((e) => ((e && e.itens) || []).filter((l) => l && l.nome))), // reserva: cadastro do site
   ]).then(([site, grade, equipe]) => {
     if (site) dados.site = Object.assign(dados.site, site);
     if (grade) DIAS.forEach((d) => { dados.grade[d] = (grade[d] || []).slice().sort((a, b) => paraMin(a.inicio) - paraMin(b.inicio)); });
-    if (equipe) dados.locutores = (equipe.itens || []).filter((l) => l && l.nome);
+    if (equipe) dados.locutores = equipe;
     dados.locutores.forEach((l) => porNome.set(norm(l.nome), l));
     $$('[data-wa-link]').forEach((a) => { a.href = wa(dados.site.whatsapp, 'Olá, Nova FM! Vim pelo site 😊'); });
     renderGrade(chaveDia(agoraSP().dia));
