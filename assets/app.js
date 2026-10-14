@@ -934,7 +934,7 @@
       $('#appMeta').textContent = meta('');
       fetch(caminho, { method: 'HEAD' }).then((r) => {
         const b = +r.headers.get('content-length');
-        if (b > 0) $('#appMeta').textContent = meta((b / 1048576).toFixed(1).replace('.', ',') + ' MB');
+        if (b > 0) $('#appMeta').textContent = meta((b / 1e6).toFixed(1).replace('.', ',') + ' MB');
       }).catch(() => {});
     }).catch(() => {});
   }
