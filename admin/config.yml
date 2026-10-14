@@ -36,7 +36,7 @@ collections:
 
   - name: programacao
     label: "Programação"
-    description: "Grade de programas. O site destaca sozinho o que está no ar e mostra os horários no card de cada locutor."
+    description: "RESERVA. A grade oficial agora é editada no painel da plataforma (menu Programação) e vale para o site e o app. Esta aqui só aparece se o painel estiver fora do ar."
     files:
       - name: grade
         label: "Grade da programação"

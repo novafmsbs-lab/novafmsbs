@@ -345,6 +345,12 @@ h2 em,.slogan em{font-style:normal;color:var(--laranja)}
 .promo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
 .promo-card{position:relative;display:flex;flex-direction:column;gap:12px;padding:24px;border-radius:var(--raio);overflow:hidden;
   background:radial-gradient(120% 120% at 100% 0%,rgba(255,138,29,.16),transparent 55%),var(--sup);border:1px solid rgba(255,138,29,.32)}
+.promo-card .pc-arte{width:calc(100% + 48px);margin:-24px -24px 0;height:auto;max-height:420px;object-fit:contain;background:rgba(3,10,28,.55)}
+.regulamento{margin:4px 0 14px;font-size:13.5px;color:var(--txt-2)}
+.regulamento summary{cursor:pointer;font-weight:700;color:var(--txt);padding:6px 0}
+.regulamento p{margin-top:6px;max-height:180px;overflow:auto;line-height:1.5}
+#eGeral{display:block;margin:4px 0 10px;font-size:13px;color:var(--erro);min-height:1em}
+.campo > span small{font-weight:600;color:var(--txt-3)}
 .promo-card .pc-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:rgba(255,138,29,.16);color:var(--laranja)}
 .promo-card .pc-ic svg{width:26px;height:26px}
 .promo-card h3{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;line-height:1.2}

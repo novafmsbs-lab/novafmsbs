@@ -6,7 +6,9 @@
   const STREAM = 'https://radio.novafmsbs.com.br/stream';
   const NOWPLAYING = '/api/nowplaying';
   const NOTICIAS = '/api/noticias';
-  const PROMO_API = 'https://novafm-sorteador.novafmsbs.workers.dev';
+  // Plataforma (servidor central das rádios): promoções, ganhadores e grade da Nova vêm daqui.
+  const PLATAFORMA = 'https://plataforma-radio.novafmsbs.workers.dev';
+  const API_APP = PLATAFORMA + '/api/r/novafm/app';
   const SITE = 'https://novafmsbs.com.br/';
   const NOME = 'Nova FM 87,5';
   const TITULO_ORIGINAL = document.title; // o título de SEO fica no HTML; o JS só troca enquanto toca
@@ -654,21 +656,24 @@
   const dlg = $('#promo');
   const corpo = $('#promoCorpo');
   // todas = promoções abertas; lista = as que dá para participar agora (geral, ou do programa que está no ar)
-  let promo = { programa: null, todas: [], lista: [], ts: 0, erro: false };
+  let promo = { programa: null, todas: [], lista: [], horario: { inicio: '08:00', fim: '21:00' }, ts: 0, erro: false };
   let escolhida = null;
 
   function carregarPromos(forcar) {
     if (!forcar && promo.ts && Date.now() - promo.ts < 60000) return Promise.resolve(promo);
-    return Promise.all([getJSON(PROMO_API + '/api/agora'), getJSON(PROMO_API + '/api/promocoes')]).then(([a, p]) => {
-      const programa = (a && a.programa) || null;
+    return getJSON(API_APP + '/promocoes').then((p) => {
+      const programa = (p && p.programa) || null;
       const todas = ((p && p.promocoes) || []).filter((x) => x && x.id && x.nome);
-      // mesma regra do servidor: só dá para participar com um programa no ar (8h–21h)
-      const lista = programa ? todas.filter((x) => x.escopo === 'geral' || x.programa === programa) : [];
-      promo = { programa, todas, lista, ts: Date.now(), erro: false };
+      // o servidor já diz o que está aberto agora (horário das promoções + programa ao vivo no ar)
+      const lista = todas.filter((x) => x.aberta_agora);
+      const horario = (p && p.horario) || promo.horario;
+      promo = { programa, todas, lista, horario, ts: Date.now(), erro: false };
       return promo;
-    }).catch(() => { promo = { programa: null, todas: [], lista: [], ts: Date.now(), erro: true }; return promo; });
+    }).catch(() => { promo = Object.assign({}, promo, { programa: null, todas: [], lista: [], ts: Date.now(), erro: true }); return promo; });
   }
 
+  const janelaPromo = () => 'das ' + hora(promo.horario.inicio) + ' às ' + hora(promo.horario.fim);
+  const arte = (x) => (x.imagem && /^\/img\/\d+$/.test(x.imagem) ? PLATAFORMA + x.imagem : '');
   // Horário do programa de uma promoção, tirado da grade real do site (ex.: "10h–12h")
   function horarioDoPrograma(nome) {
     for (const dia of DIAS) { const s = (dados.grade[dia] || []).find((x) => norm(x.programa) === norm(nome)); if (s) return faixa(s); }
@@ -690,27 +695,28 @@
       const horario = x.escopo === 'programa' ? horarioDoPrograma(x.programa) : '';
       const quando = x.escopo === 'programa'
         ? 'Participe durante o ' + esc(x.programa) + (horario ? ' (' + horario + ')' : '')
-        : 'Participe durante a programação ao vivo, das 8h às 21h';
+        : 'Participe durante a programação ao vivo, ' + janelaPromo();
       const chance = x.modo === 'cartela'
         ? 'Quanto mais dias você participar, mais chances de ganhar'
         : 'Todos os participantes têm a mesma chance';
-      return '<article class="promo-card"><span class="pc-ic"><svg><use href="#i-gift"/></svg></span>' +
+      return '<article class="promo-card">' + (arte(x) ? '<img class="pc-arte" src="' + esc(arte(x)) + '" alt="" loading="lazy">' : '<span class="pc-ic"><svg><use href="#i-gift"/></svg></span>') +
         '<h3>' + esc(x.nome) + '</h3>' +
         (x.premio ? '<p class="premio"><small>Prêmio</small>' + esc(x.premio) + '</p>' : '') +
         '<ul><li><svg><use href="#i-clock"/></svg><span>' + quando + '</span></li><li><svg><use href="#i-check"/></svg><span>' + chance + '</span></li></ul>' +
         '<div class="acoes-pc">' + (agora
           ? '<button class="btn btn-primario" type="button" data-promo-abrir data-promo-id="' + (+x.id) + '">Participar agora</button><span class="status-pc aberta">● Aberta agora</span>'
-          : '<span class="status-pc">' + (x.escopo === 'programa' ? 'Abre durante o ' + esc(x.programa) : 'Abre com a programação ao vivo, às 8h') + '</span>') + '</div></article>';
+          : '<span class="status-pc">' + (x.escopo === 'programa' ? 'Abre durante o ' + esc(x.programa) : 'Abre com a programação ao vivo, às ' + hora(promo.horario.inicio)) + '</span>') + '</div></article>';
     }).join('');
   }
 
   // Últimos ganhadores (o servidor já devolve o nome abreviado, ex.: "Maria S.")
   function carregarGanhadores() {
-    getJSON(PROMO_API + '/api/sorteados?limite=6').then((d) => {
+    getJSON(API_APP + '/sorteados?limite=6').then((d) => {
       const lista = ((d && d.sorteados) || []).filter((g) => g && g.nome);
       if (!lista.length) return;
       $('#listaGanhadores').innerHTML = lista.map((g) => {
-        const dt = g.quando ? new Date(String(g.quando).replace(' ', 'T') + 'Z') : null;
+        // a plataforma manda milissegundos; o sistema antigo mandava "AAAA-MM-DD HH:MM:SS" (UTC)
+        const dt = g.quando ? new Date(typeof g.quando === 'number' ? g.quando : String(g.quando).replace(' ', 'T') + 'Z') : null;
         const data = dt && !isNaN(dt) ? dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '';
         return '<li><span class="trofeu"><svg><use href="#i-trophy"/></svg></span><span><b>' + esc(g.nome) + '</b><span>' +
           esc([g.premio || g.promocao, data].filter(Boolean).join(' · ')) + '</span></span></li>';
@@ -750,7 +756,7 @@
     if (!promo.lista.length) {
       const prog = promo.programa;
       const texto = prog ? 'Nenhuma promoção aberta no ' + esc(prog) + ' agora. Fica ligado na Nova: quando abrir, ela aparece aqui!'
-        : 'As promoções acontecem durante a programação ao vivo, das 8h às 21h. Volte mais tarde!';
+        : 'As promoções acontecem durante a programação ao vivo, ' + janelaPromo() + '. Volte mais tarde!';
       telaEstado('', 'i-gift', 'Nada rolando agora', texto, tocando ? '' : '<button class="btn btn-primario" type="button" data-play><svg class="ic-play"><use href="#i-play"/></svg><svg class="ic-pause"><use href="#i-pause"/></svg>Ouvir a Nova enquanto isso</button>');
       return;
     }
@@ -765,8 +771,26 @@
     $$('.promo-item', corpo).forEach((b) => b.addEventListener('click', () => { escolhida = promo.lista[+b.dataset.i]; telaFormulario(); }));
   }
 
+  // Campos extras que a promoção pede (o servidor confere de novo; aqui é só para ajudar a preencher).
+  const EXTRAS = {
+    bairro: [['bairro', 'Seu bairro', 'address-level3', 60], ['cidade', 'Sua cidade', 'address-level2', 60]],
+    email: [['email', 'Seu e-mail', 'email', 120, 'email']],
+    nascimento: [['nascimento', 'Data de nascimento (dd/mm/aaaa)', 'bday', 10, 'text', 'numeric']],
+    cpf: [['cpf', 'CPF', 'off', 14, 'text', 'numeric']],
+    endereco: [['cep', 'CEP', 'postal-code', 9, 'text', 'numeric'], ['endereco', 'Rua', 'address-line1', 120], ['numero', 'Número', 'off', 10], ['complemento', 'Complemento', 'address-line2', 60]],
+  };
+  function camposExtras(c) {
+    c = c || {};
+    const pedidos = Object.keys(c).filter((k) => EXTRAS[k]);
+    if (c.endereco && !c.bairro) pedidos.unshift('bairro'); // endereço completo também pede bairro e cidade
+    const vistos = new Set();
+    return pedidos.flatMap((k) => EXTRAS[k].map((f) => ({ f, obrig: c[k] === 'obrigatorio' || (k === 'bairro' && c.endereco === 'obrigatorio') })))
+      .map(({ f, obrig }) => ({ f, obrig: obrig && f[0] !== 'complemento' }))
+      .filter(({ f }) => !vistos.has(f[0]) && vistos.add(f[0]));
+  }
   function telaFormulario() {
     const salvo = store.get('nova_participante', null);
+    const extras = camposExtras(escolhida.campos);
     corpo.innerHTML =
       '<h3 id="promoTitulo">Participe do sorteio</h3><p class="sub">Leva 10 segundos. Boa sorte!</p>' +
       '<div class="escolhida"><div><small>Concorrendo em</small><b>' + esc(escolhida.nome) + '</b>' + (escolhida.premio ? '<br><span class="sub">' + esc(escolhida.premio) + '</span>' : '') + '</div>' +
@@ -774,13 +798,19 @@
       '<form id="formPromo" novalidate>' +
       '<label class="campo"><span>Seu nome</span><input id="fNome" name="nome" autocomplete="name" placeholder="Como te chamam no ar" maxlength="60" required><small class="erro" id="eNome"></small></label>' +
       '<label class="campo"><span>Seu WhatsApp com DDD</span><input id="fFone" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="(47) 99999-9999" maxlength="16" required><small class="erro" id="eFone"></small></label>' +
+      extras.map(({ f, obrig }) => '<label class="campo"><span>' + esc(f[1]) + (obrig ? '' : ' <small>(opcional)</small>') + '</span><input data-extra="' + f[0] + '" name="' + f[0] + '" autocomplete="' + f[2] + '" maxlength="' + f[3] + '"' +
+        (f[4] ? ' type="' + f[4] + '"' : '') + (f[5] ? ' inputmode="' + f[5] + '"' : '') + (obrig ? ' required' : '') + '></label>').join('') +
+      (escolhida.regulamento ? '<details class="regulamento"><summary>Ler o regulamento</summary><p>' + esc(escolhida.regulamento).replace(/\n/g, '<br>') + '</p></details>' : '') +
       '<label class="check"><input type="checkbox" id="fOk"><span>Autorizo a Nova FM a usar meu nome e WhatsApp para contato sobre este sorteio.<small>Seu número só é usado para avisar se você ganhar e nunca é repassado a terceiros. Você pode pedir a remoção quando quiser (LGPD).</small></span></label>' +
+      '<label class="check"><input type="checkbox" id="fMarketing"><span>Quero receber novidades e promoções da Nova pelo WhatsApp <small>(opcional)</small></span></label>' +
       '<label class="check"><input type="checkbox" id="fLembrar"' + (salvo || !store.get('nova_nao_lembrar', false) ? ' checked' : '') + '><span>Lembrar meus dados neste aparelho</span></label>' +
-      '<button class="btn btn-primario btn-enviar" type="submit" id="fEnviar" disabled>Participar</button></form>';
+      '<small class="erro" id="eGeral" role="alert"></small><button class="btn btn-primario btn-enviar" type="submit" id="fEnviar" disabled>Participar</button></form>';
     const nome = $('#fNome'), fone = $('#fFone'), ok = $('#fOk'), enviar = $('#fEnviar');
     if (salvo) { nome.value = salvo.nome || ''; fone.value = mascara(salvo.fone || ''); }
     const digitos = () => fone.value.replace(/\D/g, '');
-    const valida = () => { enviar.disabled = !(nome.value.trim().length >= 2 && digitos().length >= 10 && ok.checked); };
+    const obrigatorios = $$('[data-extra][required]', corpo);
+    const valida = () => { enviar.disabled = !(nome.value.trim().length >= 2 && digitos().length >= 10 && ok.checked && obrigatorios.every((i) => i.value.trim())); };
+    obrigatorios.forEach((i) => i.addEventListener('input', valida));
     fone.addEventListener('input', () => { fone.value = mascara(fone.value); valida(); });
     nome.addEventListener('input', valida); ok.addEventListener('change', valida);
     if ($('#trocar')) $('#trocar').addEventListener('click', telaLista);
@@ -798,8 +828,9 @@
       if (lembrar) { store.set('nova_participante', { nome: nome.value.trim(), fone: digitos() }); store.set('nova_nao_lembrar', false); }
       else { try { localStorage.removeItem('nova_participante'); } catch (er) { /* ignora */ } store.set('nova_nao_lembrar', true); }
       enviar.disabled = true; enviar.textContent = 'Enviando…';
-      const corpoReq = { nome: nome.value.trim(), whatsapp: digitos(), promocao_id: escolhida.id, consentimento: true };
-      fetch(PROMO_API + '/api/participar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpoReq) })
+      const corpoReq = { nome: nome.value.trim(), whatsapp: digitos(), promocao_id: escolhida.id, consentimento: true, origem: 'site', marketing: $('#fMarketing').checked };
+      $$('[data-extra]', corpo).forEach((i) => { if (i.value.trim()) corpoReq[i.dataset.extra] = i.value.trim(); });
+      fetch(API_APP + '/participar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpoReq) })
         .then((r) => r.json().catch(() => ({})).then((j) => { if (!r.ok) throw new Error(j.erro || 'Não foi possível enviar agora.'); return j; }))
         .then((j) => {
           telaEstado('ok', 'i-check', 'Você está concorrendo!', esc(j.mensagem || 'Sua participação em ' + escolhida.nome + ' foi registrada.') + '<br><b>' + esc(corpoReq.nome) + '</b>, boa sorte! 🍀',
@@ -808,7 +839,7 @@
         })
         .catch((er) => {
           enviar.disabled = false; enviar.textContent = 'Participar';
-          $('#eFone').textContent = er.message === 'Failed to fetch' ? 'Sem conexão. Tente de novo.' : er.message;
+          $('#eGeral').textContent = er.message === 'Failed to fetch' ? 'Sem conexão. Tente de novo.' : er.message;
         });
     });
   }
@@ -893,9 +924,23 @@
   carregarBanner();
   carregarApoiadores();
 
+  // Grade da plataforma no formato do site (semana = a de segunda-feira, sábado, domingo). "00:00" no fim = meia-noite.
+  function gradeDaPlataforma(g) {
+    const progs = (g && g.programas) || [];
+    if (!progs.length) throw new Error('grade vazia');
+    const out = { semana: [], sabado: [], domingo: [] };
+    for (const p of progs) {
+      for (const [chave, dia] of [['semana', '1'], ['sabado', '6'], ['domingo', '0']]) {
+        if (!String(p.dias).includes(dia)) continue;
+        out[chave].push({ inicio: p.inicio, fim: p.fim === '00:00' ? '24:00' : p.fim, programa: p.nome, descricao: p.descricao || '', apresentadores: p.locutores || [] });
+      }
+    }
+    return out;
+  }
+
   Promise.all([
     getJSON('/content/site.json').catch(() => null),
-    getJSON('/content/programacao.json').catch(() => null),
+    getJSON(API_APP + '/programacao').then(gradeDaPlataforma).catch(() => getJSON('/content/programacao.json').catch(() => null)),
     getJSON('/content/locutores.json').catch(() => null),
   ]).then(([site, grade, equipe]) => {
     if (site) dados.site = Object.assign(dados.site, site);
