@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/img/logo-nova.webp" fetchpriority="high">
-<link rel="stylesheet" href="/assets/site.css?v=20261014g">
+<link rel="stylesheet" href="/assets/site.css?v=20261022a">
 
 <script type="application/ld+json">
 {
@@ -155,6 +155,7 @@
             <span class="rotulo" data-np-tag>Tocando agora</span>
             <p class="np-titulo" data-np-titulo>Nova FM 87,5</p>
             <p class="np-artista" data-np-artista>Você ouve, você gosta!</p>
+            <a class="np-link" id="npLink" href="#" target="_blank" rel="noopener" hidden>Ouvir no Apple Music</a>
             <div class="eq" id="eq" aria-hidden="true"></div>
           </div>
         </div>
@@ -165,6 +166,18 @@
             <a class="btn-icone" data-pedir href="https://wa.me/554736335401" target="_blank" rel="noopener" aria-label="Pedir música pelo WhatsApp"><svg><use href="#i-wa"/></svg></a>
             <button class="btn-icone" type="button" id="compartilhar" aria-label="Compartilhar a rádio"><svg><use href="#i-share"/></svg></button>
           </div>
+        </div>
+        <!-- Pesquisa musical: o ouvinte avalia a música que está tocando (some em vinheta/comercial) -->
+        <div class="pc-nota" id="pcNota" hidden>
+          <p class="pc-nota-perg" id="pcNotaPerg">O quanto você gosta dessa música?</p>
+          <div class="pc-nota-botoes" role="group" aria-labelledby="pcNotaPerg">
+            <button type="button" data-nota="5" aria-pressed="false"><span aria-hidden="true">😍</span>Adorei</button>
+            <button type="button" data-nota="4" aria-pressed="false"><span aria-hidden="true">😊</span>Gostei</button>
+            <button type="button" data-nota="3" aria-pressed="false"><span aria-hidden="true">😐</span>OK</button>
+            <button type="button" data-nota="2" aria-pressed="false"><span aria-hidden="true">🙁</span>Não gostei</button>
+            <button type="button" data-nota="1" aria-pressed="false"><span aria-hidden="true">😩</span>Não gosto</button>
+          </div>
+          <p class="pc-nota-res" id="pcNotaRes" aria-live="polite"></p>
         </div>
         <div class="pc-erro" id="pcErro" role="alert" hidden>
           <svg><use href="#i-alert"/></svg><span id="pcErroTxt">Não foi possível conectar ao vivo.</span>
@@ -381,6 +394,6 @@
 
 <audio id="stream" preload="none"></audio>
 
-<script src="/assets/app.js?v=20261014g" defer></script>
+<script src="/assets/app.js?v=20261022a" defer></script>
 </body>
 </html>

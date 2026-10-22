@@ -288,7 +288,8 @@
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: titulo || NOME, artist: artista || 'Você ouve, você gosta!', album: NOME,
-        artwork: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }, { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' }],
+        artwork: musicaAtual && musicaAtual.capa && musicaAtual.t === titulo ? [{ src: musicaAtual.capa, sizes: '600x600' }]
+          : [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }, { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' }],
       });
     } catch (e) { /* ignora */ }
   }
@@ -357,10 +358,12 @@
     mostrar('Você está ouvindo', atual ? atual.programa : NOME, quem ? 'com ' + quem : (atual && atual.descricao) || 'Você ouve, você gosta!');
   }
 
-  function aplicarTocando(artista, titulo) {
+  function aplicarTocando(artista, titulo, extra) {
     titulo = (titulo || '').trim(); artista = (artista || '').trim();
+    extra = extra || {};
     if (!titulo) {
       if (musicaAtual) { arquivar(musicaAtual); musicaAtual = null; }
+      mostrarCapa(null);
       modoPrograma();
       return;
     }
@@ -368,8 +371,92 @@
       if (musicaAtual) arquivar(musicaAtual);
       musicaAtual = { t: titulo, a: artista, h: horaAgora(), ts: Date.now() };
     }
+    musicaAtual.id = extra.id || null;
+    musicaAtual.capa = urlSegura(extra.capa) || null;
+    musicaAtual.link = urlSegura(extra.link) || null;
+    musicaAtual.fonte = extra.fonte || null;
+    mostrarCapa(musicaAtual);
     mostrar('Tocando agora', titulo, artista || NOME);
   }
+
+  /* Capa da música (Apple Music/Deezer, achada pela plataforma). Sem capa segura: logo da Nova. */
+  const LOGO_CAPA = '/img/logo-mark.webp';
+  const capaImg = $('#pcCapa');
+  capaImg.addEventListener('error', () => { if (!capaImg.src.endsWith(LOGO_CAPA)) { capaImg.src = LOGO_CAPA; capaImg.closest('.pc-capa').classList.remove('com-capa'); } });
+  let capaMostrada = null;
+  function mostrarCapa(m) {
+    const capa = (m && m.capa) || null;
+    const link = $('#npLink');
+    if (m && m.link) {
+      link.href = m.link;
+      link.textContent = m.fonte === 'deezer' ? 'Ouvir no Deezer' : 'Ouvir no Apple Music';
+      link.hidden = false;
+    } else link.hidden = true;
+    if (capa !== capaMostrada) {
+      capaMostrada = capa;
+      capaImg.src = capa || LOGO_CAPA;
+      capaImg.alt = capa ? 'Capa de ' + m.t : '';
+      capaImg.closest('.pc-capa').classList.toggle('com-capa', !!capa);
+      const disco = $('.mini-disco');
+      if (disco) { disco.classList.toggle('com-capa', !!capa); disco.style.backgroundImage = capa ? 'url("' + capa.replace(/"/g, '') + '")' : ''; }
+    }
+    renderNota(m);
+  }
+
+  /* ================= Pesquisa musical: "O quanto você gosta dessa música?" =================
+     Um voto por música (dá para mudar). Quem vota pelo site entra com um id aleatório guardado só no navegador. */
+  let notaDesligada = false;
+  const votos = store.get('nova_votos', {});
+  function idWeb() {
+    let w = store.get('nova_wid', '');
+    if (!/^[0-9a-f-]{36}$/.test(w)) {
+      w = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+      store.set('nova_wid', w);
+    }
+    return w;
+  }
+  function textoResumo(r, minha) {
+    if (!r || !r.total) return minha ? 'Obrigado! Você foi o primeiro a avaliar.' : '';
+    const ouv = r.total === 1 ? '1 ouvinte avaliou' : r.total + ' ouvintes avaliaram';
+    return (minha ? 'Obrigado! ' : '') + r.gostaram + '% gostaram · ' + ouv;
+  }
+  function marcarNota(nota) {
+    $$('#pcNota [data-nota]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.nota === nota)));
+  }
+  let notaMusica = null;
+  function renderNota(m) {
+    const box = $('#pcNota');
+    if (notaDesligada || !m || !m.id) { box.hidden = true; notaMusica = null; return; }
+    box.hidden = false;
+    if (notaMusica === m.id) return;
+    notaMusica = m.id;
+    const minha = votos[m.id] || null;
+    marcarNota(minha);
+    $('#pcNotaRes').textContent = '';
+    getJSON(API_APP + '/avaliacao?musica_id=' + m.id + '&w=' + idWeb(), 8000).then((d) => {
+      if (notaMusica !== m.id) return;
+      $('#pcNotaRes').textContent = textoResumo(d.resumo, d.minha);
+      if (d.minha) { marcarNota(d.minha); votos[m.id] = d.minha; }
+    }).catch((e) => { if (/HTTP 403/.test(String(e && e.message))) { notaDesligada = true; box.hidden = true; } });
+  }
+  $('#pcNota').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-nota]');
+    if (!b || !notaMusica) return;
+    const nota = +b.dataset.nota, id = notaMusica;
+    marcarNota(nota);
+    fetch(API_APP + '/avaliar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ w: idWeb(), musica_id: id, nota }) })
+      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+      .then(({ ok, j }) => {
+        if (!ok) throw new Error(j.erro || 'erro');
+        votos[id] = nota;
+        const chaves = Object.keys(votos);
+        if (chaves.length > 300) chaves.slice(0, chaves.length - 300).forEach((k) => delete votos[k]);
+        store.set('nova_votos', votos);
+        if (notaMusica === id) $('#pcNotaRes').textContent = textoResumo(j.resumo, nota);
+      })
+      .catch((err) => { marcarNota(votos[id] || null); toast(String(err.message || '').includes('não está tocando') ? 'Essa música já acabou. Avalie a próxima!' : 'Não deu para registrar agora. Tente de novo.'); });
+  });
   function arquivar(m) {
     if (historico[0] && historico[0].t === m.t && historico[0].a === m.a) return;
     historico.unshift(m);
@@ -382,8 +469,9 @@
   function buscarTocando() {
     if (buscando || (document.hidden && !tocando)) return;
     buscando = true;
-    getJSON(NOWPLAYING, 10000)
-      .then((d) => { const s = (d && d.now_playing && d.now_playing.song) || {}; aplicarTocando(s.artist, s.title); })
+    getJSON(API_APP + '/tocando', 10000)
+      .then((d) => { const m = (d && d.musica) || {}; aplicarTocando(m.artist, m.title, m); })
+      .catch(() => getJSON(NOWPLAYING, 10000).then((d) => { const s = (d && d.now_playing && d.now_playing.song) || {}; aplicarTocando(s.artist, s.title); }))
       .catch(() => { if (!musicaAtual) modoPrograma(); })
       .finally(() => { buscando = false; });
   }
