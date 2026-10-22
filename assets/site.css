@@ -652,6 +652,12 @@ body.pagina-interna{padding-bottom:env(safe-area-inset-bottom)}
   .folha-corpo{padding-bottom:calc(26px + env(safe-area-inset-bottom))}
   .btn-ouvir{padding:0 12px 0 8px}
 }
+/* computador estreito (menu completo + botão): texto curto para não empurrar o cabeçalho */
+@media (min-width:961px) and (max-width:1199px){
+  .btn-app-topo .lab-longo{display:none}
+  .btn-app-topo .lab-curto{display:inline}
+  .menu a[href="#app"]{display:none}   /* o botão verde ao lado já leva ao app */
+}
 @media (max-width:440px){
   .btn-app-topo{font-size:13px;padding:0 11px 0 9px;gap:6px}
   .btn-app-topo svg{width:16px;height:16px}
