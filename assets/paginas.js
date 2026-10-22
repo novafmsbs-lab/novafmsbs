@@ -40,7 +40,15 @@
   /* ---------- Anunciantes (lista real do painel) ---------- */
   const grade = $('#apoioGrade');
   if (grade) {
-    getJSON('/content/apoiadores.json').then((d) => {
+    // Anunciantes vêm do painel da plataforma; o arquivo do site fica de reserva.
+    const PLATAFORMA = 'https://plataforma-radio.novafmsbs.workers.dev';
+    getJSON(PLATAFORMA + '/api/r/novafm/app/anunciantes')
+      .then((d) => {
+        const lista = ((d && d.anunciantes) || []).map((a) => ({ nome: a.nome, link: a.link || '', logo: a.logo && a.logo.startsWith('/') ? PLATAFORMA + a.logo : a.logo || '' }));
+        return lista.length ? { itens: lista } : getJSON('/content/apoiadores.json');
+      })
+      .catch(() => getJSON('/content/apoiadores.json'))
+      .then((d) => {
       const itens = ((d && d.itens) || []).filter((i) => i && i.nome);
       if (!itens.length) return;
       grade.innerHTML = itens.map((it) => {

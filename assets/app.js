@@ -738,8 +738,64 @@
     });
   }
   function carregarApoiadores() {
-    getJSON('/content/apoiadores.json').then((d) => renderApoiadores((d && d.itens) || [])).catch(() => { $('#apoiadores').hidden = true; });
+    const doSite = () => getJSON('/content/apoiadores.json').then((d) => (d && d.itens) || []);
+    getJSON(API_APP + '/anunciantes', 8000)
+      .then((d) => {
+        const lista = ((d && d.anunciantes) || []).map((a) => ({ nome: a.nome, link: a.link || '', logo: a.logo && a.logo.startsWith('/') ? PLATAFORMA + a.logo : a.logo || '' }));
+        return lista.length ? lista : doSite();
+      })
+      .catch(doSite)
+      .then(renderApoiadores)
+      .catch(() => { $('#apoiadores').hidden = true; });
   }
+
+  /* ================= Enquete da Nova (ao lado das promoções) =================
+     Mesma enquete do app. Quem vota pelo site entra com o id aleatório do navegador (sem moedas). */
+  let enqueteSite = null;
+  function cartaoEnqueteHTML(e) {
+    const r = e.resultado, votou = e.votou;
+    const total = r ? r.total || 0 : 0;
+    const corpoOps = votou == null
+      ? '<div class="enq-opcoes">' + e.opcoes.map((o, i) => '<button class="btn enq-op" type="button" data-enq-op="' + i + '">' + esc(o) + '</button>').join('') + '</div>'
+      : '<div class="enq-result">' + e.opcoes.map((o, i) => {
+        const n = r ? r.votos[i] || 0 : 0, pct = total ? Math.round((n / total) * 100) : 0;
+        return '<div class="enq-barra' + (i === votou ? ' minha' : '') + '"><div class="enq-rot"><span>' + esc(o) + (i === votou ? ' <small>(seu voto)</small>' : '') + '</span>' +
+          (r ? '<b>' + pct + '%</b>' : '') + '</div>' + (r ? '<div class="enq-trilho"><i style="width:' + pct + '%"></i></div>' : '') + '</div>';
+      }).join('') + '<p class="enq-total">' + (r ? (total === 1 ? '1 voto' : total + ' votos') + ' até agora' : 'Voto registrado! O resultado sai no ar.') + '</p></div>';
+    return '<article class="promo-card enquete-card" aria-labelledby="enqPergunta"><span class="pc-ic enq-ic" aria-hidden="true">📊</span>' +
+      '<span class="kicker">Enquete da Nova</span><h3 id="enqPergunta">' + esc(e.pergunta) + '</h3>' + corpoOps +
+      '<p class="enq-app">No app da Nova, cada voto vale moedas. <a href="#app">Baixar o app</a></p></article>';
+  }
+  function renderEnqueteSite() {
+    const alvo = $('#promoCards');
+    const velho = $('#enqueteSite', alvo);
+    if (velho) velho.remove();
+    if (!enqueteSite) return;
+    const caixa = document.createElement('div');
+    caixa.id = 'enqueteSite';
+    caixa.className = 'enquete-vaga';
+    caixa.innerHTML = cartaoEnqueteHTML(enqueteSite);
+    alvo.append(caixa);
+  }
+  function carregarEnquete() {
+    getJSON(API_APP + '/enquete?w=' + idWeb(), 8000)
+      .then((d) => { enqueteSite = (d && d.enquete) || null; renderEnqueteSite(); })
+      .catch(() => {});
+  }
+  $('#promoCards').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-enq-op]');
+    if (!b || !enqueteSite) return;
+    const opcao = +b.dataset.enqOp, id = enqueteSite.id;
+    $$('[data-enq-op]').forEach((x) => { x.disabled = true; });
+    fetch(API_APP + '/votar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ w: idWeb(), enquete: id, opcao }) })
+      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+      .then(({ ok, j }) => {
+        if (!ok) throw new Error(j.erro || 'erro');
+        enqueteSite = j.enquete || Object.assign({}, enqueteSite, { votou: opcao });
+        renderEnqueteSite();
+      })
+      .catch((err) => { toast(err.message && err.message !== 'erro' ? err.message : 'Não deu para votar agora. Tente de novo.'); carregarEnquete(); });
+  });
 
   /* ================= Promoções (dentro do site) ================= */
   const dlg = $('#promo');
@@ -769,6 +825,10 @@
     return '';
   }
   function renderPromoSecao() {
+    renderPromoCartoes();
+    renderEnqueteSite();
+  }
+  function renderPromoCartoes() {
     const alvo = $('#promoCards');
     if (promo.erro) {
       alvo.innerHTML = '<div class="vazio"><b>Promoções indisponíveis no momento</b>O sistema de promoções não respondeu agora.<br><button class="btn" type="button" id="promoSecDeNovo" style="margin-top:12px">Tentar de novo</button></div>';
@@ -1086,6 +1146,8 @@
   });
 
   carregarPromos().then(sinalizarPromos);
+  carregarEnquete();
+  setInterval(() => { if (!document.hidden) carregarEnquete(); }, 60000);
   carregarGanhadores();
   setInterval(() => { if (!document.hidden) carregarPromos(true).then(sinalizarPromos); }, 5 * 60000);
   abrirPeloLink(); // QR codes e links antigos chegam como /#promocoes e abrem a participação direto

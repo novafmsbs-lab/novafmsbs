@@ -684,3 +684,21 @@ body.pagina-interna{padding-bottom:env(safe-area-inset-bottom)}
   .manchetes-janela{overflow-x:auto;scrollbar-width:none}
   .manchetes .dup,.manchetes-pausa{display:none}
 }
+
+/* Enquete da Nova (na grade das promoções) */
+.enquete-vaga{display:contents}
+.enquete-card .enq-ic{font-size:26px;display:grid;place-items:center}
+.enquete-card .kicker{margin-top:4px}
+.enquete-card h3{margin-top:6px}
+.enq-opcoes{display:grid;gap:8px;margin-top:14px}
+.enq-op{justify-content:flex-start;text-align:left;min-height:46px;white-space:normal}
+.enq-op:hover{border-color:var(--eletrico);background:rgba(61,123,255,.14)}
+.enq-result{display:grid;gap:10px;margin-top:14px}
+.enq-rot{display:flex;justify-content:space-between;gap:8px;font-size:14.5px;font-weight:600;color:var(--txt-2)}
+.enq-rot small{color:var(--txt-3);font-weight:600}
+.enq-barra.minha .enq-rot{color:var(--txt)}
+.enq-trilho{height:10px;margin-top:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.enq-trilho i{display:block;height:100%;border-radius:99px;background:var(--grad)}
+.enq-total{font-size:13px;color:var(--txt-3);margin:4px 0 0}
+.enq-app{margin-top:auto;padding-top:14px;font-size:13px;color:var(--txt-3)}
+.enq-app a{color:#9cc0ff;font-weight:700;text-decoration:underline}
