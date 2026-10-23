@@ -241,10 +241,13 @@
   ligarEventos(audio);
 
   /* Reconexão: só age se o áudio realmente travar por ~8s */
-  let ultimoTempo = -1, travado = 0, reconectando = false;
+  let ultimoTempo = -1, travado = 0, reconectando = false, quedas = [];
   function reconectar() {
     if (!tocando || reconectando) return;
     reconectando = true; travado = 0;
+    // Endereço medido caindo seguido (2 vezes em 1 min): segue pelo direto, que não passa pela plataforma
+    quedas = quedas.filter((t) => Date.now() - t < 60000).concat(Date.now());
+    if (quedas.length >= 2 && STREAM !== STREAM_DIRETO) STREAM = STREAM_DIRETO;
     if (estado === 'tocando') setEstado('carregando');
     audio.src = STREAM + '?r=' + Date.now();
     audio.play().catch(() => {});

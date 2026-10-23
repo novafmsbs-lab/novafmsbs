@@ -35,12 +35,14 @@ async function doStatusHtml() {
   let html = ""; for (const b of bytes) html += String.fromCharCode(b);
   const conserta = (s) => decodifica(Uint8Array.from(s, (c) => c.charCodeAt(0) & 0xff));
   const atual = (html.match(/Currently playing:<\/td>\s*<td[^>]*>([^<]*)<\/td>/i) || [])[1];
-  const ouvintes = (html.match(/Listeners \(current\):<\/td>\s*<td[^>]*>(\d+)<\/td>/i) || [])[1];
+  // Soma os ouvintes de todos os mounts (/stream, /hd, /leve: o mesmo programa em qualidades diferentes).
+  const contagens = [...html.matchAll(/Listeners \(current\):<\/td>\s*<td[^>]*>(\d+)<\/td>/gi)].map((m) => +m[1]);
+  const ouvintes = contagens.length ? contagens.reduce((t, n) => t + n, 0) : null;
   const bloco = (html.match(/<h4>Playlist<\/h4>([\s\S]*?)<\/table>/i) || [])[1] || "";
   const historico = [...bloco.matchAll(/<tr>\s*(?:<td>[^<]*<\/td>\s*){3}<td>([^<]*)<\/td>\s*<\/tr>/g)].map((m) => deHtml(conserta(m[1])));
   let raw = atual ? deHtml(conserta(atual)) : "";
   if (!util(raw)) raw = [...historico].reverse().find(util) || ""; // o mais recente fica no fim da tabela
-  return { raw, ouvintes: ouvintes ? +ouvintes : null };
+  return { raw, ouvintes };
 }
 
 async function doStream() {
