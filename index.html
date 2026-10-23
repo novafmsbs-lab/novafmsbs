@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/img/logo-nova.webp" fetchpriority="high">
-<link rel="stylesheet" href="/assets/site.css?v=20261023b">
+<link rel="stylesheet" href="/assets/site.css?v=20261023c">
 
 <script type="application/ld+json">
 {
@@ -76,6 +76,7 @@
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 2 1 21h22zm0 4.3L19.5 19h-15zM11 10v4h2v-4zm0 6v2h2v-2z"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm1 3v4.6l3.3 2-1 1.7L11 12.7V7z"/></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V17h3v2H8v-2h3v-2.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3zm0 4H6v1a2 2 0 0 0 1 1.7zm10 0v2.7A2 2 0 0 0 18 8V7zM9 5v5a3 3 0 0 0 6 0V5z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16v2H4zM6 11h3v7H6zm5-6h3v13h-3zm5 9h3v4h-3z"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.9V21h-2v-3.1A7 7 0 0 1 5 11z"/></symbol>
 </svg>
 
@@ -131,9 +132,8 @@
     <div class="wrap hero-grid">
       <div class="hero-texto">
         <img class="hero-logo" src="/img/logo-nova.webp" width="760" height="474" alt="Nova FM 87,5" fetchpriority="high">
-        <span class="selo-vivo"><i></i>Ao vivo · 87,5 FM</span>
         <h1 class="hero-titulo" id="heroTitulo">Ouça a Nova FM <em>ao vivo</em></h1>
-        <p class="hero-sub">A Nova FM conecta você à música, às notícias e às pessoas da nossa região. Você ouve, você gosta!</p>
+        <p class="hero-sub">A rádio da sua região, com os locutores que você conhece. Você ouve, você gosta!</p>
         <div class="hero-ctas">
           <button class="btn btn-primario btn-grande" type="button" data-play aria-label="Ouvir ao vivo"><svg class="ic-play"><use href="#i-play"/></svg><svg class="ic-pause"><use href="#i-pause"/></svg><span data-play-label>Ouvir ao vivo</span></button>
           <a class="btn btn-grande" href="#noticias"><svg><use href="#i-news"/></svg>Notícias da região</a>
@@ -225,11 +225,10 @@
         <div class="app-brilho" aria-hidden="true"></div>
         <div class="app-intro">
           <img class="app-icone" src="/icons/icon-192.png" width="192" height="192" alt="">
-          <span class="kicker app-kicker"><i></i>Novo · App da Nova</span>
           <h2 id="tApp">Experimente o <em>app da Nova</em></h2>
           <p>A rádio tocando com a tela bloqueada, pedido de música e áudio para o estúdio, chat com o locutor, enquetes e promoções na palma da mão.</p>
           <div class="app-ctas" data-app-android>
-            <a class="btn btn-primario btn-grande" id="appBaixar" href="/app/NovaFM-2.6.0.apk" download><svg><use href="#i-down"/></svg>Baixar o app</a>
+            <a class="btn btn-primario btn-grande" id="appBaixar" href="/app/NovaFM-2.7.0.apk" download><svg><use href="#i-down"/></svg>Baixar o app</a>
             <a class="btn btn-leve" href="/app" data-pagina>Mais detalhes<svg><use href="#i-arrow"/></svg></a>
           </div>
           <p class="app-meta" id="appMeta" data-app-android>Para Android 7 ou mais novo · grátis</p>
@@ -257,7 +256,7 @@
   <section id="noticias" aria-labelledby="tNoticias">
     <div class="wrap">
       <div class="sec-topo">
-        <div><span class="kicker"><svg><use href="#i-news"/></svg>Portal Nova Mais</span><h2 id="tNoticias">Notícias da <em>região</em></h2></div>
+        <div><h2 id="tNoticias">Notícias da <em>região</em></h2></div>
         <form class="busca" action="https://portalnovafmsbs.com.br/" method="get" target="_blank" role="search">
           <label class="sr" for="buscaNoticias">Buscar notícias no Portal Nova Mais</label>
           <input id="buscaNoticias" name="s" type="search" placeholder="Buscar notícias…" required minlength="2">
@@ -281,7 +280,7 @@
   <section id="programacao" aria-labelledby="tProgramacao">
     <div class="wrap">
       <div class="sec-topo">
-        <div><span class="kicker"><svg><use href="#i-clock"/></svg>Programação</span><h2 id="tProgramacao">O que toca na <em>Nova</em></h2></div>
+        <div><h2 id="tProgramacao">O que toca na <em>Nova</em></h2></div>
         <div class="abas" role="tablist" aria-label="Dia da programação">
           <button role="tab" type="button" data-dia="semana">Seg a Sex</button>
           <button role="tab" type="button" data-dia="sabado">Sábado</button>
@@ -289,13 +288,14 @@
         </div>
       </div>
       <ol class="grade cartao" id="grade" aria-live="polite"></ol>
+      <button class="btn grade-tudo" type="button" id="gradeTudo" aria-controls="grade" hidden>Ver a programação do dia</button>
     </div>
   </section>
 
   <!-- EQUIPE -->
   <section id="locutores" aria-labelledby="tEquipe">
     <div class="wrap">
-      <div class="sec-topo"><div><span class="kicker"><svg><use href="#i-mic"/></svg>Equipe</span><h2 id="tEquipe">As vozes da <em>Nova</em></h2></div></div>
+      <div class="sec-topo"><div><h2 id="tEquipe">As vozes da <em>Nova</em></h2></div></div>
       <div class="equipe" id="equipe"></div>
     </div>
   </section>
@@ -303,7 +303,7 @@
   <!-- PROMOÇÕES -->
   <section id="promocoes" aria-labelledby="tPromos">
     <div class="wrap">
-      <div class="sec-topo"><div><span class="kicker"><svg><use href="#i-gift"/></svg>Promoções</span><h2 id="tPromos">Concorra com a <em>Nova</em></h2></div></div>
+      <div class="sec-topo"><div><h2 id="tPromos">Concorra com a <em>Nova</em></h2></div></div>
       <div class="promo-cards" id="promoCards" aria-live="polite"><div class="esqueleto" style="min-height:230px"></div></div>
       <div class="cartao ganhadores" id="ganhadores" hidden>
         <span class="kicker"><svg><use href="#i-trophy"/></svg>Últimos ganhadores</span>
@@ -316,7 +316,7 @@
   <!-- REDES SOCIAIS -->
   <section id="redes" aria-labelledby="tRedes">
     <div class="wrap">
-      <div class="sec-topo"><div><span class="kicker">Redes sociais</span><h2 id="tRedes">Siga a <em>Nova</em></h2></div></div>
+      <div class="sec-topo"><div><h2 id="tRedes">Siga a <em>Nova</em></h2></div></div>
       <div class="redes" id="redesLista">
         <a class="rede instagram" href="https://instagram.com/novafm_sbs" target="_blank" rel="noopener"><span class="ri"><svg><use href="#i-ig"/></svg></span><span class="rt"><small>Instagram</small><b>@novafm_sbs</b><span>Bastidores, promoções, sorteios e os locutores no dia a dia.</span></span><span class="btn btn-primario">Seguir<svg><use href="#i-arrow"/></svg></span></a>
       </div>
@@ -327,13 +327,11 @@
   <section id="apoiadores" aria-labelledby="tApoio">
     <div class="wrap">
       <div class="sec-topo">
-        <div><span class="kicker">Anunciantes</span><h2 id="tApoio">Quem apoia a <em>Nova</em></h2></div>
-        <button class="btn btn-leve" type="button" id="apoioTodos" aria-expanded="false" aria-controls="apoioGrade">Ver todos</button>
+        <div><h2 id="tApoio">Quem apoia a <em>Nova</em></h2></div>
       </div>
     </div>
-    <div class="apoio-faixas" id="apoioFaixas"></div>
     <div class="wrap">
-      <div class="apoio-grade" id="apoioGrade" hidden></div>
+      <div class="apoio-grade" id="apoioGrade"></div>
       <a class="anuncie" href="/anuncie" data-pagina>
         <span><b>Anuncie na Nova FM</b>Sua marca na rádio, nas promoções e no site da Nova. Conheça os formatos.</span>
         <span class="btn btn-primario">Quero anunciar<svg><use href="#i-arrow"/></svg></span>
@@ -394,6 +392,6 @@
 
 <audio id="stream" preload="none"></audio>
 
-<script src="/assets/app.js?v=20261023b" defer></script>
+<script src="/assets/app.js?v=20261023c" defer></script>
 </body>
 </html>

@@ -492,19 +492,26 @@
     const ag = agoraSP();
     const hoje = chaveDia(ag.dia) === dia;
     if (!lista.length) { $('#grade').innerHTML = '<li><span class="p"><span>Programação indisponível no momento.</span></span></li>'; return; }
-    $('#grade').innerHTML = lista.map((s) => {
+    // Hoje: mostra o programa no ar e os 3 seguintes; o resto fica atrás de "Ver a programação do dia".
+    const iAgora = hoje ? lista.findIndex((s) => ag.min >= paraMin(s.inicio) && ag.min < paraMin(s.fim)) : -1;
+    const recolher = hoje && !gradeAberta && iAgora >= 0 && lista.length > 4;
+    $('#grade').innerHTML = lista.map((s, i) => {
       const ini = paraMin(s.inicio), fim = paraMin(s.fim);
       const agora = hoje && ag.min >= ini && ag.min < fim;
       const passou = hoje && ag.min >= fim;
+      const oculto = recolher && (i < iAgora || i > iAgora + 3);
       const quem = nomesJuntos(s.apresentadores);
       const lado = agora ? '<span class="tag-agora">No ar</span>'
         : (s.apresentadores || []).length ? '<span class="rostos">' + s.apresentadores.map((n) => avatar(n)).join('') + '</span>' : '';
-      return '<li class="' + (agora ? 'agora' : passou ? 'passou' : '') + '" style="--ac:' + corPrograma(s) + '">' +
+      return '<li class="' + (agora ? 'agora' : passou ? 'passou' : '') + '"' + (oculto ? ' hidden' : '') + ' style="--ac:' + corPrograma(s) + '">' +
         '<span class="h">' + faixa(s) + '</span>' +
         '<div class="p"><b>' + esc(s.programa) + '</b><span>' + (quem ? '<span class="quem">' + esc(quem) + '</span> · ' : '') + esc(s.descricao || '') + '</span></div>' +
         (lado ? '<div class="lado">' + lado + '</div>' : '') + '</li>';
     }).join('');
+    $('#gradeTudo').hidden = !recolher;
   }
+  let gradeAberta = false;
+  $('#gradeTudo').addEventListener('click', () => { gradeAberta = true; renderGrade(abaAtiva); });
 
   $$('.abas button').forEach((b, i, todos) => {
     b.addEventListener('click', () => renderGrade(b.dataset.dia));
@@ -661,6 +668,7 @@
       alvo.innerHTML = '<div class="noticias-grid">' + cartaoNoticia(principal, 'destaque') +
         '<div class="noticias-lado">' + resto.slice(0, 3).map((n) => cartaoNoticia(n, 'compacta')).join('') + '</div></div>' +
         (resto.length > 3 ? '<div class="noticias-mais">' + resto.slice(3, 6).map((n) => cartaoNoticia(n, '')).join('') + '</div>' : '');
+      alvo.querySelectorAll('.noticia .foto img').forEach((img) => img.addEventListener('error', () => img.closest('.foto').remove(), { once: true }));
       renderManchetes(itens);
     }).catch(() => {
       alvo.innerHTML = '<div class="vazio"><b>Não conseguimos carregar as notícias agora</b>Acompanhe as notícias da região direto no <a href="' + esc(portal) + '" target="_blank" rel="noopener" style="color:#6cc1ff;text-decoration:underline">Portal Nova Mais</a>.</div>';
@@ -718,7 +726,7 @@
     if (!nome) return '';
     const link = urlSegura(it.link);
     const logo = urlSegura(it.logo);
-    const sigla = '<span class="sigla">' + (logo ? '<img src="' + esc(logo) + '" alt="" loading="lazy">' : esc(iniciais(nome, 2))) + '</span>';
+    const sigla = logo ? '<span class="sigla"><img src="' + esc(logo) + '" alt="" loading="lazy"></span>' : '';
     const corpo = sigla + '<span class="nome">' + esc(nome) + '</span>' + (link ? '<svg class="ext"><use href="#i-arrow"/></svg>' : '');
     const attrs = ' style="--ac:' + corPorNome(nome) + '"' + (dup ? ' aria-hidden="true" tabindex="-1"' : '');
     return link ? '<a class="apoio' + (dup ? ' dup' : '') + '" href="' + esc(link) + '" target="_blank" rel="noopener"' + attrs + '>' + corpo + '</a>'
@@ -727,21 +735,7 @@
   function renderApoiadores(itens) {
     itens = itens.filter((i) => i && (i.nome || typeof i === 'string'));
     if (!itens.length) { $('#apoiadores').hidden = true; return; }
-    const linhas = itens.length > 8 ? [itens.filter((_, i) => i % 2 === 0), itens.filter((_, i) => i % 2 === 1)] : [itens];
-    $('#apoioFaixas').innerHTML = linhas.map((l, i) => {
-      const html = l.map((x) => cartaoApoio(x)).join('');
-      const dup = l.map((x) => cartaoApoio(x, true)).join('');
-      return '<div class="faixa' + (i % 2 ? ' inversa' : '') + '" style="--dur:' + Math.max(30, l.length * 6) + 's">' + html + dup + '</div>';
-    }).join('');
     $('#apoioGrade').innerHTML = itens.map((x) => cartaoApoio(x)).join('');
-    const bt = $('#apoioTodos');
-    bt.addEventListener('click', () => {
-      const abrir = $('#apoioGrade').hidden;
-      $('#apoioGrade').hidden = !abrir;
-      $('#apoioFaixas').hidden = abrir;
-      bt.textContent = abrir ? 'Recolher' : 'Ver todos';
-      bt.setAttribute('aria-expanded', abrir);
-    });
   }
   function carregarApoiadores() {
     const doSite = () => getJSON('/content/apoiadores.json').then((d) => (d && d.itens) || []);
@@ -768,7 +762,7 @@
         return '<div class="enq-barra' + (i === votou ? ' minha' : '') + '"><div class="enq-rot"><span>' + esc(o) + (i === votou ? ' <small>(seu voto)</small>' : '') + '</span>' +
           (r ? '<b>' + pct + '%</b>' : '') + '</div>' + (r ? '<div class="enq-trilho"><i style="width:' + pct + '%"></i></div>' : '') + '</div>';
       }).join('') + '<p class="enq-total">' + (r ? (total === 1 ? '1 voto' : total + ' votos') + ' até agora' : 'Voto registrado! O resultado sai no ar.') + '</p></div>';
-    return '<article class="promo-card enquete-card" aria-labelledby="enqPergunta"><span class="pc-ic enq-ic" aria-hidden="true">📊</span>' +
+    return '<article class="promo-card enquete-card" aria-labelledby="enqPergunta"><span class="pc-ic enq-ic" aria-hidden="true"><svg><use href="#i-chart"/></svg></span>' +
       '<span class="kicker">Enquete da Nova</span><h3 id="enqPergunta">' + esc(e.pergunta) + '</h3>' + corpoOps +
       '<p class="enq-app">No app da Nova, cada voto vale moedas. <a href="#app">Baixar o app</a></p></article>';
   }

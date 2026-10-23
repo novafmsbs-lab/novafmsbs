@@ -3,3 +3,8 @@ img/LOGO *.png
 
 # Cache local do wrangler (testes com wrangler pages dev)
 .wrangler/
+
+# Contexto interno do Impeccable (não publicar no site)
+PRODUCT.md
+DESIGN.md
+.impeccable/
