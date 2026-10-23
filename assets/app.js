@@ -3,7 +3,9 @@
   'use strict';
 
   /* ================= Configuração ================= */
-  const STREAM = 'https://radio.novafmsbs.com.br/stream';
+  // Áudio pelo endereço medido da plataforma (mesmo som, com audiência por região/aparelho); se falhar, volta ao direto.
+  const STREAM_DIRETO = 'https://radio.novafmsbs.com.br/stream';
+  let STREAM = 'https://painel.novafmsbs.com.br/ouvir/novafm';
   const NOWPLAYING = '/api/nowplaying';
   const NOTICIAS = '/api/noticias';
   // Plataforma (servidor central das rádios): promoções, ganhadores e grade da Nova vêm daqui.
@@ -222,6 +224,7 @@
     el.addEventListener('error', () => {
       if (!tocando || !el.getAttribute('src')) return;
       // Duas falhas seguidas com o equalizador real: passa para um player simples (sem CORS) e segue tocando
+      if (STREAM !== STREAM_DIRETO) { STREAM = STREAM_DIRETO; tocar(true); return; }   // endereço medido falhou: segue pelo direto
       if (++errosSeguidos >= 2 && usaAnalise) { usaAnalise = false; trocarElemento(); tocar(true); return; }
       falhou();
     });
