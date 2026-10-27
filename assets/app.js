@@ -106,6 +106,12 @@
     const dentro = foto ? '<img src="' + esc(foto) + '" alt="" loading="lazy" width="112" height="112">' : esc(iniciais(nome));
     return '<span class="avatar ' + extraClasse + '" style="--ac:' + cor + '" title="' + esc(nome) + '">' + dentro + '</span>';
   }
+  // Arte própria de programa (sem música no ar): capa redonda do player e cartão "No ar" usam a quadrada; a grade, a original.
+  const ARTE_PROGRAMA = {
+    'a voz do brasil': { capa: '/img/programas/voz-do-brasil-capa.webp', arte: '/img/programas/voz-do-brasil.webp' },
+  };
+  const artePrograma = (s) => (s && ARTE_PROGRAMA[norm(s.programa)]) || null;
+
   function avatarLogo() { return '<span class="avatar logo"><img src="/img/logo-mark.webp" alt="" width="64" height="64"></span>'; }
 
   function programaAgora() {
@@ -369,7 +375,8 @@
     extra = extra || {};
     if (!titulo) {
       if (musicaAtual) { arquivar(musicaAtual); musicaAtual = null; }
-      mostrarCapa(null);
+      const { atual } = programaAgora(), arte = artePrograma(atual);
+      mostrarCapa(arte ? { capa: arte.capa, t: atual.programa } : null);
       modoPrograma();
       return;
     }
@@ -401,7 +408,7 @@
     if (capa !== capaMostrada) {
       capaMostrada = capa;
       capaImg.src = capa || LOGO_CAPA;
-      capaImg.alt = capa ? 'Capa de ' + m.t : '';
+      capaImg.alt = capa ? (m.id ? 'Capa de ' : '') + m.t : '';
       capaImg.closest('.pc-capa').classList.toggle('com-capa', !!capa);
       const disco = $('.mini-disco');
       if (disco) { disco.classList.toggle('com-capa', !!capa); disco.style.backgroundImage = capa ? 'url("' + capa.replace(/"/g, '') + '")' : ''; }
@@ -501,8 +508,10 @@
       const passou = hoje && ag.min >= fim;
       const oculto = recolher && (i < iAgora || i > iAgora + 3);
       const quem = nomesJuntos(s.apresentadores);
-      const lado = agora ? '<span class="tag-agora">No ar</span>'
-        : (s.apresentadores || []).length ? '<span class="rostos">' + s.apresentadores.map((n) => avatar(n)).join('') + '</span>' : '';
+      const arte = artePrograma(s);
+      const lado = (arte ? '<img class="prog-arte" src="' + arte.arte + '" alt="" width="96" height="64" loading="lazy">' : '') +
+        (agora ? '<span class="tag-agora">No ar</span>'
+          : (s.apresentadores || []).length ? '<span class="rostos">' + s.apresentadores.map((n) => avatar(n)).join('') + '</span>' : '');
       return '<li class="' + (agora ? 'agora' : passou ? 'passou' : '') + '"' + (oculto ? ' hidden' : '') + ' style="--ac:' + corPrograma(s) + '">' +
         '<span class="h">' + faixa(s) + '</span>' +
         '<div class="p"><b>' + esc(s.programa) + '</b><span>' + (quem ? '<span class="quem">' + esc(quem) + '</span> · ' : '') + esc(s.descricao || '') + '</span></div>' +
@@ -529,7 +538,9 @@
     const quem = atual.apresentadores || [];
     $('#noAr').style.setProperty('--ac', cor);
     const primeiro = quem.find((n) => locutor(n)) || quem[0];
-    $('#noArAvatar').innerHTML = primeiro ? avatar(primeiro) : avatarLogo();
+    const arte = artePrograma(atual);
+    $('#noArAvatar').innerHTML = arte ? '<span class="avatar arte"><img src="' + arte.capa + '" alt="" width="64" height="64"></span>'
+      : primeiro ? avatar(primeiro) : avatarLogo();
     $('#noArPrograma').textContent = atual.programa;
     $('#noArApresentador').textContent = quem.length ? 'com ' + nomesJuntos(quem) : (atual.descricao || 'Programação musical');
     $('#noArHorario').textContent = faixa(atual);
