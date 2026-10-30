@@ -439,6 +439,8 @@ a.apoio:hover{border-color:color-mix(in srgb,var(--ac) 60%,transparent);backgrou
 .rodape-fim{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:40px;padding-top:22px;border-top:1px solid var(--linha);font-size:var(--fs-sm);color:var(--txt-3);font-weight:600}
 .rodape-fim a{color:var(--txt-2);text-decoration:underline;text-underline-offset:3px}
 .rodape-fim a:hover{color:var(--txt)}
+.rodape-fim .credito{display:inline-flex;align-items:center;gap:7px;vertical-align:middle;margin-left:4px}
+.rodape-fim .credito img{border-radius:5px;flex:none}
 
 /* App da Nova (card de divulgação do APK) */
 .app-sec{padding:var(--s7) 0 0}
